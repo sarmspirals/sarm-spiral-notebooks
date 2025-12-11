@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SARM Spiral Notebooks — Shop</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <svg width="48" height="48" viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="lg" x1="0" x2="1">
+            <stop offset="0" stop-color="#1a73e8"/>
+            <stop offset="1" stop-color="#38bdf8"/>
+          </linearGradient>
+        </defs>
+        <rect rx="16" width="100" height="100" fill="url(#lg)"></rect>
+        <text x="50" y="60" font-size="56" fill="#fff" text-anchor="middle" font-family="Arial">S</text>
+      </svg>
+      <h1>SARM Spiral Notebooks</h1>
+    </div>
+
+    <div class="nav-actions">
+      <button id="darkToggle" class="pill">🌙</button>
+      <button id="cartBtn" class="pill">Cart (<span id="cartCount">0</span>)</button>
+      <a href="admin.html" class="pill" target="_blank">Admin</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <h2>Premium Spiral Notebooks</h2>
+      <p>Durable, smooth pages — available in 200 / 250 / 300 / 400 / 500 pages.</p>
+    </div>
+  </section>
+
+  <main class="container">
+    <h2>Products</h2>
+    <div id="productsGrid" class="products-grid"></div>
+  </main>
+
+  <!-- CART -->
+  <aside id="cartPanel" class="cart-panel">
+    <button id="closeCart" class="close-x">✕</button>
+    <h3>Your Cart</h3>
+    <div id="cartItems"></div>
+    <div class="cart-summary">
+      <strong>Total: <span id="cartTotal">Rs 0</span></strong>
+      <button id="checkoutBtn" class="btn-primary">Checkout (UPI)</button>
+    </div>
+  </aside>
+
+  <!-- UPI QR MODAL -->
+  <div id="upiModal" class="modal">
+    <div class="modal-content">
+      <button id="closeUpi" class="close-x">✕</button>
+      <h3>Scan to Pay (UPI)</h3>
+      <div id="qrcode"></div>
+      <p id="upiText"></p>
+      <p class="muted">After payment, admin marks the order as PAID.</p>
+      <button id="finishBtn" class="btn-primary">Finish</button>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p><strong>Address:</strong> Kawoosa Khalisa, Badgam</p>
+    <p><strong>Phone:</strong> 7006927825</p>
+    <p><strong>Email:</strong> mir7amir@gmail.com</p>
+    <div>© <span id="year"></span> SARM Spiral Notebooks</div>
+  </footer>
+</body>
+</html>

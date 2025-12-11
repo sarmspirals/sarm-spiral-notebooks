@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SARM Admin Panel</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script defer src="admin.js"></script>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <svg width="48" height="48" viewBox="0 0 100 100">
+        <rect width="100" height="100" rx="16" fill="#1a73e8"/>
+        <text x="50" y="60" fill="white" font-size="50" text-anchor="middle">S</text>
+      </svg>
+      <h1>Admin — SARM</h1>
+    </div>
+    <button id="logoutBtn" class="pill">Logout</button>
+  </header>
+
+  <main class="container">
+    <section id="authSection">
+      <h2>Admin Login</h2>
+      <input id="email" type="email" placeholder="Email"><br><br>
+      <input id="password" type="password" placeholder="Password"><br><br>
+      <button id="loginBtn" class="btn-primary">Login</button>
+    </section>
+
+    <section id="panel" style="display:none;">
+      <h2>Orders</h2>
+      <div id="ordersList"></div>
+    </section>
+  </main>
+</body>
+</html>
