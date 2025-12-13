@@ -16,7 +16,7 @@ const auth = firebase.auth();
 
 // PRODUCT DATA
 const PRODUCTS = [
-  { id:"p200", title:"Spiral Notebook (200 Pages)", price:69, img:"200.jpg", pages:200,stock: 0 },
+  { id:"p200", title:"Spiral Notebook (200 Pages)", price:69, img:"200.jpg", pages:200,stock: 100 },
   { id:"p250", title:"Spiral Notebook (250 Pages)", price:85, img:"250.jpg", pages:250,stock: 100 },
   { id:"p300", title:"Spiral Notebook (300 Pages)", price:105, img:"300.jpg", pages:300,stock: 100 },
   { id:"p400", title:"Spiral Notebook (400 Pages)", price:129, img:"400.jpg", pages:400,stock: 100 },
@@ -313,6 +313,7 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 renderProducts();
 updateCartUI();
 saveCart();
+
 
 
 
