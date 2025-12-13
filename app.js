@@ -317,9 +317,10 @@ darkToggle && darkToggle.addEventListener('click', ()=> applyDarkMode(localStora
 applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 
 // INIT
-renderProducts();
+loadProductsFromFirebase();
 updateCartUI();
 saveCart();
+
 
 
 
