@@ -14,14 +14,21 @@ if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
+let PRODUCTS = [];
+async function loadProductsFromFirebase() {
+  const snapshot = await db.collection("products").get();
+
+  PRODUCTS = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+
+  renderProducts();
+}
+
+
 // PRODUCT DATA
-const PRODUCTS = [
-  { id:"p200", title:"Spiral Notebook (200 Pages)", price:69, img:"200.jpg", pages:200,stock: 100 },
-  { id:"p250", title:"Spiral Notebook (250 Pages)", price:85, img:"250.jpg", pages:250,stock: 100 },
-  { id:"p300", title:"Spiral Notebook (300 Pages)", price:105, img:"300.jpg", pages:300,stock: 100 },
-  { id:"p400", title:"Spiral Notebook (400 Pages)", price:129, img:"400.jpg", pages:400,stock: 100 },
-  { id:"p500", title:"Spiral Notebook (500 Pages)", price:155, img:"500.jpg", pages:500,stock: 100 }
-];
+const PRODUCTS = [];
 
 // UPI DETAILS (already set by you)
 const UPI_VPA   = "7006927825@pz";
@@ -313,6 +320,7 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 renderProducts();
 updateCartUI();
 saveCart();
+
 
 
 
