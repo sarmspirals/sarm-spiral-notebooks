@@ -28,7 +28,7 @@ async function loadProductsFromFirebase() {
 
 
 // PRODUCT DATA
-const PRODUCTS = [];
+const PRODUCTS = []
 
 // UPI DETAILS (already set by you)
 const UPI_VPA   = "7006927825@pz";
@@ -320,6 +320,7 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 loadProductsFromFirebase();
 updateCartUI();
 saveCart();
+
 
 
 
