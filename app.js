@@ -193,6 +193,7 @@ if (!customer) {
   try {
     const order = {
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      customer, // 👈 DELIVERY DETAILS SAVED HERE
       items: Object.keys(cart).map(id => {
         const p = PRODUCTS.find(x=>x.id===id);
         return { id: p.id, title: p.title, price: p.price, qty: cart[id] };
@@ -248,6 +249,7 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 renderProducts();
 updateCartUI();
 saveCart();
+
 
 
 
