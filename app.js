@@ -202,6 +202,25 @@ if (!customer) {
       status: 'pending_payment'
     };
     const docRef = await db.collection('orders').add(order);
+    // ================= WHATSAPP ORDER ALERT =================
+const whatsappMessage = `
+🛒 NEW ORDER RECEIVED - SARM SPIRAL NOTEBOOKS
+
+🧑 Customer Name: ${customer.name}
+📞 Phone: ${customer.phone}
+🏠 Address: ${customer.address}
+
+📦 Order Details:
+${order.items.map(i => `• ${i.title} x ${i.qty} = Rs ${i.price * i.qty}`).join('\n')}
+
+💰 Total Amount: Rs ${total}
+🆔 Order ID: ${docRef.id}
+`;
+
+const whatsappURL = `https://wa.me/917006927825?text=${encodeURIComponent(whatsappMessage)}`;
+window.open(whatsappURL, "_blank");
+// =======================================================
+
     showUpiModal(docRef.id, total);
     cart = {}; saveCart();
   } catch(err) {
@@ -249,6 +268,7 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 renderProducts();
 updateCartUI();
 saveCart();
+
 
 
 
