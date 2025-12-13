@@ -16,11 +16,11 @@ const auth = firebase.auth();
 
 // PRODUCT DATA
 const PRODUCTS = [
-  { id:"p200", title:"Spiral Notebook (200 Pages)", price:69, img:"assets/200.jpg", pages:200 },
-  { id:"p250", title:"Spiral Notebook (250 Pages)", price:85, img:"assets/250.jpg", pages:250 },
-  { id:"p300", title:"Spiral Notebook (300 Pages)", price:105, img:"assets/300.jpg", pages:300 },
-  { id:"p400", title:"Spiral Notebook (400 Pages)", price:129, img:"assets/400.jpg", pages:400 },
-  { id:"p500", title:"Spiral Notebook (500 Pages)", price:155, img:"assets/500.jpg", pages:500 }
+  { id:"p200", title:"Spiral Notebook (200 Pages)", price:69, img:"200.jpg", pages:200 },
+  { id:"p250", title:"Spiral Notebook (250 Pages)", price:85, img:"250.jpg", pages:250 },
+  { id:"p300", title:"Spiral Notebook (300 Pages)", price:105, img:"300.jpg", pages:300 },
+  { id:"p400", title:"Spiral Notebook (400 Pages)", price:129, img:"400.jpg", pages:400 },
+  { id:"p500", title:"Spiral Notebook (500 Pages)", price:155, img:"500.jpg", pages:500 }
 ];
 
 // UPI DETAILS (already set by you)
@@ -232,3 +232,4 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 renderProducts();
 updateCartUI();
 saveCart();
+
