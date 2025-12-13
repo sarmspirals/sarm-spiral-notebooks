@@ -16,11 +16,11 @@ const auth = firebase.auth();
 
 // PRODUCT DATA
 const PRODUCTS = [
-  { id:"p200", title:"Spiral Notebook (200 Pages)", price:69, img:"200.jpg", pages:200 },
-  { id:"p250", title:"Spiral Notebook (250 Pages)", price:85, img:"250.jpg", pages:250 },
-  { id:"p300", title:"Spiral Notebook (300 Pages)", price:105, img:"300.jpg", pages:300 },
-  { id:"p400", title:"Spiral Notebook (400 Pages)", price:129, img:"400.jpg", pages:400 },
-  { id:"p500", title:"Spiral Notebook (500 Pages)", price:155, img:"500.jpg", pages:500 }
+  { id:"p200", title:"Spiral Notebook (200 Pages)", price:69, img:"200.jpg", pages:200,stock: 0 },
+  { id:"p250", title:"Spiral Notebook (250 Pages)", price:85, img:"250.jpg", pages:250,stock: 100 },
+  { id:"p300", title:"Spiral Notebook (300 Pages)", price:105, img:"300.jpg", pages:300,stock: 100 },
+  { id:"p400", title:"Spiral Notebook (400 Pages)", price:129, img:"400.jpg", pages:400,stock: 100 },
+  { id:"p500", title:"Spiral Notebook (500 Pages)", price:155, img:"500.jpg", pages:500,stock: 100 }
 ];
 
 // UPI DETAILS (already set by you)
@@ -128,13 +128,15 @@ function renderProducts(){
     const div = document.createElement('div');
     div.className = 'product';
     div.innerHTML = `
-      <img src="${p.img}" alt="${p.title}" loading="lazy">
+      <img src="${p.img}" alt="${p.title}">
       <h3>${p.title}</h3>
       <div>Pages: ${p.pages}</div>
       <div class="price">Rs ${p.price}</div>
       <div class="actions">
-        <button class="btn btn-primary" data-add="${p.id}">Buy Now</button>
-        <button class="btn btn-outline" data-detail="${p.id}">Details</button>
+        ${p.stock > 0
+  ? `<button class="btn btn-primary" data-add="${p.id}">Buy Now</button>`
+  : `<button class="btn btn-outline" disabled>Out of Stock</button>`
+}
       </div>
     `;
     productsGrid.appendChild(div);
@@ -231,6 +233,14 @@ if (!customer) {
       status: 'pending_payment'
     };
     const docRef = await db.collection('orders').add(order);
+    // Reduce stock locally
+order.items.forEach(item => {
+  const product = PRODUCTS.find(p => p.id === item.id);
+  if (product) {
+    product.stock -= item.qty;
+  }
+});
+
     // Generate invoice PDF
 generateInvoice(order);
 
@@ -303,6 +313,7 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 renderProducts();
 updateCartUI();
 saveCart();
+
 
 
 
