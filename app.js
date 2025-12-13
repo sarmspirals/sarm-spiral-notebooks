@@ -38,6 +38,35 @@ function getDeliveryDetails() {
 
   return { name, phone, address };
 }
+function generateInvoice(order) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(16);
+  doc.text("SARM SPIRAL NOTEBOOKS", 20, 20);
+
+  doc.setFontSize(12);
+  doc.text(`Customer Name: ${order.customer.name}`, 20, 35);
+  doc.text(`Phone: ${order.customer.phone}`, 20, 45);
+  doc.text(`Address: ${order.customer.address}`, 20, 55);
+
+  doc.text("Order Details:", 20, 70);
+
+  let y = 80;
+  order.items.forEach(item => {
+    doc.text(
+      `${item.title} x ${item.qty} = Rs ${item.price * item.qty}`,
+      20,
+      y
+    );
+    y += 10;
+  });
+
+  doc.text(`Total Amount: Rs ${order.total}`, 20, y + 10);
+
+  doc.save(`SARM-Invoice-${Date.now()}.pdf`);
+}
+
 
 // DOM element refs
 const productsGrid = document.getElementById('productsGrid');
@@ -260,35 +289,6 @@ closeUpi && closeUpi.addEventListener('click', ()=>{
 finishBtn && finishBtn.addEventListener('click', ()=>{
   upiModal.classList.remove('show'); upiModal.setAttribute('aria-hidden','true');
 });
-function generateInvoice(order) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.setFontSize(16);
-  doc.text("SARM SPIRAL NOTEBOOKS", 20, 20);
-
-  doc.setFontSize(12);
-  doc.text(`Customer Name: ${order.customer.name}`, 20, 35);
-  doc.text(`Phone: ${order.customer.phone}`, 20, 45);
-  doc.text(`Address: ${order.customer.address}`, 20, 55);
-
-  doc.text("Order Details:", 20, 70);
-
-  let y = 80;
-  order.items.forEach(item => {
-    doc.text(
-      `${item.title} x ${item.qty} = Rs ${item.price * item.qty}`,
-      20,
-      y
-    );
-    y += 10;
-  });
-
-  doc.text(`Total Amount: Rs ${order.total}`, 20, y + 10);
-
-  doc.save(`SARM-Invoice-${Date.now()}.pdf`);
-}
-
 
 // DARK MODE
 function applyDarkMode(on){
@@ -303,6 +303,7 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 renderProducts();
 updateCartUI();
 saveCart();
+
 
 
 
