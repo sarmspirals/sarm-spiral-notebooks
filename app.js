@@ -26,6 +26,18 @@ const PRODUCTS = [
 // UPI DETAILS (already set by you)
 const UPI_VPA   = "7006927825@pz";
 const UPI_NAME  = "SARM Spiral Notebooks";
+function getDeliveryDetails() {
+  const name = prompt("Enter your full name:");
+  const phone = prompt("Enter your phone number:");
+  const address = prompt("Enter delivery address:");
+
+  if (!name || !phone || !address) {
+    alert("Delivery details required!");
+    return null;
+  }
+
+  return { name, phone, address };
+}
 
 // DOM element refs
 const productsGrid = document.getElementById('productsGrid');
@@ -232,4 +244,5 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 renderProducts();
 updateCartUI();
 saveCart();
+
 
