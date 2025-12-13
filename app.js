@@ -184,7 +184,11 @@ closeCartBtn && closeCartBtn.addEventListener('click', closeCart);
 // CHECKOUT -> Create order in Firestore + show UPI QR
 checkoutBtn && checkoutBtn.addEventListener('click', async ()=>{
   const { total, items } = cartSummary();
-  if (items === 0) return alert('Cart is empty');
+  if (items === 0) return alert('Cart is empty');const customer = getDeliveryDetails();
+if (!customer) {
+  alert("Order cancelled. Delivery details required.");
+  return;
+}
 
   try {
     const order = {
@@ -244,5 +248,6 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 renderProducts();
 updateCartUI();
 saveCart();
+
 
 
