@@ -219,6 +219,9 @@ ${order.items.map(i => `• ${i.title} x ${i.qty} = Rs ${i.price * i.qty}`).join
 
 const whatsappURL = `https://wa.me/917006927825?text=${encodeURIComponent(whatsappMessage)}`;
 window.open(whatsappURL, "_blank");
+    // Redirect customer to order success page
+window.location.href = "success.html";
+
 // =======================================================
 
     showUpiModal(docRef.id, total);
@@ -268,6 +271,7 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 renderProducts();
 updateCartUI();
 saveCart();
+
 
 
 
