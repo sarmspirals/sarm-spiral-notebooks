@@ -10,9 +10,26 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
- 
+ <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
   <script defer src="app.js"></script>
 </head>
+
+  <!-- UPI PAYMENT MODAL -->
+<div id="upiModal" class="upi-modal" style="display:none">
+  <div class="upi-box">
+    <h2>Pay via UPI</h2>
+
+    <div id="upiQR" style="margin:20px auto;"></div>
+
+    <p id="upiAmount" style="font-weight:bold"></p>
+    <p style="font-size:14px;color:#555">
+      Scan this QR using Google Pay, PhonePe, Paytm, or any UPI app
+    </p>
+
+    <button class="btn btn-primary" onclick="closeUpiModal()">Close</button>
+  </div>
+</div>
+
 
 <body>
   <header class="site-header">
@@ -56,6 +73,14 @@
     <div class="cart-summary">
       <strong>Total: <span id="cartTotal">Rs 0</span></strong>
       <button id="checkoutBtn" class="btn-primary">Checkout (UPI)</button>
+    <button
+  id="upiBtn"
+  class="btn btn-outline"
+  style="margin-top:10px"
+>
+  Pay via UPI
+</button>
+
     </div>
   </aside>
 
@@ -79,6 +104,7 @@
   </footer>
 </body>
 </html>
+
 
 
 
