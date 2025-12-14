@@ -227,6 +227,8 @@ upiBtn && upiBtn.addEventListener('click', () => {
 
 // CHECKOUT -> Create order in Firestore + show UPI QR
 checkoutBtn && checkoutBtn.addEventListener('click', async () => {
+  const paymentMethodEl = document.querySelector('input[name="paymentMethod"]:checked');
+const paymentMethod = paymentMethodEl ? paymentMethodEl.value : "COD";
   try {
     // Ensure products loaded
     if (!PRODUCTS || PRODUCTS.length === 0) {
@@ -273,12 +275,13 @@ checkoutBtn && checkoutBtn.addEventListener('click', async () => {
 
     // Create order object
     const order = {
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       customer,
       items: cartItems,
       total,
-      status: "pending_payment"
-    };
+      paymentMethod,
+  status: paymentMethod === "COD" ? "cod_pending" : "upi_pending",
+  createdAt: firebase.firestore.FieldValue.serverTimestamp()
+ };
 
     // Save order to Firestore
     const docRef = await db.collection("orders").add(order);
@@ -299,8 +302,9 @@ checkoutBtn && checkoutBtn.addEventListener('click', async () => {
 
     // Open UPI payment
     const upiURL = `upi://pay?pa=7006927825@pz&pn=SARM Spiral Notebooks&am=${total}&cu=INR`;
-    window.open(upiURL, "_blank");
-
+    if (paymentMethod === "UPI") {
+  showUpiQR(total);
+}
     // WhatsApp alert to admin
     const whatsappMessage = `
 🛒 NEW ORDER - SARM SPIRAL NOTEBOOKS
@@ -308,6 +312,7 @@ checkoutBtn && checkoutBtn.addEventListener('click', async () => {
 👤 Name: ${customer.name}
 📞 Phone: ${customer.phone}
 🏠 Address: ${customer.address}
+💳 Payment Method: ${paymentMethod}
 
 📦 Order Items:
 ${cartItems.map(i => `• ${i.title} x ${i.qty} = Rs ${i.price * i.qty}`).join('\n')}
@@ -326,9 +331,9 @@ ${cartItems.map(i => `• ${i.title} x ${i.qty} = Rs ${i.price * i.qty}`).join('
     saveCart();
     updateCartUI();
 
-    // Redirect to success page
+setTimeout(() => {
     window.location.href = "success.html";
-
+}, 500);
   } catch (err) {
     console.error("Checkout error:", err);
     alert("Checkout failed. Please try again.");
@@ -355,6 +360,7 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 loadProductsFromFirebase();
 updateCartUI();
 saveCart();
+
 
 
 
