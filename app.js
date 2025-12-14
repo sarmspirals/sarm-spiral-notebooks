@@ -325,26 +325,6 @@ ${cartItems.map(i => `• ${i.title} x ${i.qty} = Rs ${i.price * i.qty}`).join('
   }
 });
 
-
-// UPI URI + QR generation
-function upiUri(vpa, name, amount, txnNote, txId){
-  const a = Number(amount).toFixed(2);
-  const encodedName = encodeURIComponent(name);
-  const encodedNote = encodeURIComponent(txnNote || '');
- const upiURL = `upi://pay?pa=7006927825@pz&pn=SARM Spiral Notebooks&am=${total}&cu=INR`;
-window.open(upiURL, "_blank");
-}
-
-function showUpiModal(orderId, amount){
-  upiModal.classList.add('show');
-  upiModal.setAttribute('aria-hidden','false');
-  qrcodeEl.innerHTML = '';
-  const note = `Order ${orderId}`;
-  const uri = upiUri(UPI_VPA, UPI_NAME, amount, note, orderId);
-  new QRCode(qrcodeEl, { text: uri, width: 200, height: 200 });
-  upiText.textContent = `UPI: ${UPI_VPA} • Amount: Rs ${amount} • Ref: ${orderId}`;
-}
-
 closeUpi && closeUpi.addEventListener('click', ()=>{
   upiModal.classList.remove('show'); upiModal.setAttribute('aria-hidden','true');
 });
@@ -365,6 +345,7 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 loadProductsFromFirebase();
 updateCartUI();
 saveCart();
+
 
 
 
