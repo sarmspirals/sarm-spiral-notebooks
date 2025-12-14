@@ -102,6 +102,8 @@ body{
   transform:translateX(110%);
   transition:.25s;
   padding:18px;
+  height: auto;
+  max-height: 90vh;
   overflow-y:auto;
 }
 
@@ -154,4 +156,11 @@ body{
   --card:#0e1724;
   --text:#e6eef8;
   --accent:#38bdf8;
+}
+
+#upiBtn {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  margin-top: 12px;
 }
