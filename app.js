@@ -216,66 +216,115 @@ cartBtn && cartBtn.addEventListener('click', openCart);
 closeCartBtn && closeCartBtn.addEventListener('click', closeCart);
 
 // CHECKOUT -> Create order in Firestore + show UPI QR
-checkoutBtn && checkoutBtn.addEventListener('click', async ()=>{
-  const { total, items } = cartSummary();
-  if (items === 0) return alert('Cart is empty');const customer = getDeliveryDetails();
-if (!customer) {
-  alert("Order cancelled. Delivery details required.");
-  return;
-}
-
+checkoutBtn && checkoutBtn.addEventListener('click', async () => {
   try {
+    // Ensure products loaded
+    if (!PRODUCTS || PRODUCTS.length === 0) {
+      alert("Products are still loading. Please wait.");
+      return;
+    }
+
+    // Build cart items safely
+    const cartItems = Object.keys(cart).map(id => {
+      const product = PRODUCTS.find(p => p.id === id);
+      if (!product) return null;
+
+      return {
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        qty: cart[id]
+      };
+    }).filter(Boolean);
+
+    if (cartItems.length === 0) {
+      alert("Your cart is empty");
+      return;
+    }
+
+    // Calculate total
+    const total = cartItems.reduce(
+      (sum, item) => sum + item.price * item.qty,
+      0
+    );
+
+    // Get delivery details
+    const customer = getDeliveryDetails();
+    if (!customer) return;
+
+    // Prevent overselling
+    for (let item of cartItems) {
+      const product = PRODUCTS.find(p => p.id === item.id);
+      if (!product || product.stock < item.qty) {
+        alert(`${product.title} is out of stock`);
+        return;
+      }
+    }
+
+    // Create order object
     const order = {
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      customer, // 👈 DELIVERY DETAILS SAVED HERE
-      items: Object.keys(cart).map(id => {
-        const p = PRODUCTS.find(x=>x.id===id);
-        return { id: p.id, title: p.title, price: p.price, qty: cart[id] };
-      }),
+      customer,
+      items: cartItems,
       total,
-      status: 'pending_payment'
+      status: "pending_payment"
     };
-    const docRef = await db.collection('orders').add(order);
-    // Reduce stock locally
-order.items.forEach(item => {
-  const product = PRODUCTS.find(p => p.id === item.id);
-  if (product) {
-    product.stock -= item.qty;
-  }
-});
 
-    // Generate invoice PDF
-generateInvoice(order);
+    // Save order to Firestore
+    const docRef = await db.collection("orders").add(order);
 
-    // ================= WHATSAPP ORDER ALERT =================
-const whatsappMessage = `
-🛒 NEW ORDER RECEIVED - SARM SPIRAL NOTEBOOKS
+    // Reduce stock permanently in Firebase
+    for (let item of cartItems) {
+      await db.collection("products")
+        .doc(item.id)
+        .update({
+          stock: firebase.firestore.FieldValue.increment(-item.qty)
+        });
+    }
 
-🧑 Customer Name: ${customer.name}
+    // Generate Invoice PDF
+    if (typeof generateInvoice === "function") {
+      generateInvoice(order);
+    }
+
+    // Open UPI payment
+    const upiURL = `upi://pay?pa=7006927825@pz&pn=SARM Spiral Notebooks&am=${total}&cu=INR`;
+    window.open(upiURL, "_blank");
+
+    // WhatsApp alert to admin
+    const whatsappMessage = `
+🛒 NEW ORDER - SARM SPIRAL NOTEBOOKS
+
+👤 Name: ${customer.name}
 📞 Phone: ${customer.phone}
 🏠 Address: ${customer.address}
 
-📦 Order Details:
-${order.items.map(i => `• ${i.title} x ${i.qty} = Rs ${i.price * i.qty}`).join('\n')}
+📦 Order Items:
+${cartItems.map(i => `• ${i.title} x ${i.qty} = Rs ${i.price * i.qty}`).join('\n')}
 
-💰 Total Amount: Rs ${total}
+💰 Total: Rs ${total}
 🆔 Order ID: ${docRef.id}
-`;
+    `;
 
-const whatsappURL = `https://wa.me/917006927825?text=${encodeURIComponent(whatsappMessage)}`;
-window.open(whatsappURL, "_blank");
-    // Redirect customer to order success page
-window.location.href = "success.html";
+    window.open(
+      `https://wa.me/917006927825?text=${encodeURIComponent(whatsappMessage)}`,
+      "_blank"
+    );
 
-// =======================================================
+    // Clear cart
+    cart = {};
+    saveCart();
+    updateCartUI();
 
-    showUpiModal(docRef.id, total);
-    cart = {}; saveCart();
-  } catch(err) {
-    console.error(err);
-    alert('Error creating order. See console.');
+    // Redirect to success page
+    window.location.href = "success.html";
+
+  } catch (err) {
+    console.error("Checkout error:", err);
+    alert("Checkout failed. Please try again.");
   }
 });
+
 
 // UPI URI + QR generation
 function upiUri(vpa, name, amount, txnNote, txId){
@@ -316,6 +365,7 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 loadProductsFromFirebase();
 updateCartUI();
 saveCart();
+
 
 
 
