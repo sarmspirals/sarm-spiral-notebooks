@@ -172,11 +172,10 @@ body{
 
 /* FIX CART SUMMARY LAYOUT */
 .cart-summary {
-  display: flex !important;
-  flex-direction: column !important;
+  display: flex:; 
+  flex-direction: column;
   gap: 12px;
-  position: relative;
-  z-index: 9999;
+  overflow: visible !important;
 }
 
 /* FORCE UPI BUTTON VISIBILITY */
@@ -185,6 +184,29 @@ body{
   visibility: visible !important;
   opacity: 1 !important;
   width: 100%;
+}
+
+/* === FORCE UPI BUTTON VISIBILITY (LIGHT + DARK MODE) === */
+#upiBtn{
+  display: block !important;
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #000 !important;
+  color: #fff !important;
+  border: none !important;
+  margin-top: 12px;
+  position: relative;
+  z-index: 9999;
+}
+
+/* Dark mode override */
+.dark #upiBtn{
+  background: #38bdf8 !important;   /* accent color */
+  color: #071028 !important;        /* dark text */
 }
 
 
