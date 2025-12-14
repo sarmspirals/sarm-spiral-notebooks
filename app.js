@@ -79,8 +79,8 @@ const cartCount = document.getElementById('cartCount');
 const cartItemsEl = document.getElementById('cartItems');
 const cartTotalEl = document.getElementById('cartTotal');
 const checkoutBtn = document.getElementById('checkoutBtn');
+const upiBtn = document.getElementById('upiBtn');
 const closeCartBtn = document.getElementById('closeCart');
-
 const upiModal = document.getElementById('upiModal');
 const qrcodeEl = document.getElementById('qrcode');
 const upiText = document.getElementById('upiText');
@@ -214,6 +214,16 @@ function closeCart(){ cartPanel.classList.remove('open'); cartPanel.setAttribute
 
 cartBtn && cartBtn.addEventListener('click', openCart);
 closeCartBtn && closeCartBtn.addEventListener('click', closeCart);
+upiBtn && upiBtn.addEventListener('click', () => {
+  const { total, items } = cartSummary();
+
+  if (items === 0) {
+    alert("Cart is empty");
+    return;
+  }
+
+  showUpiQR(total);
+});
 
 // CHECKOUT -> Create order in Firestore + show UPI QR
 checkoutBtn && checkoutBtn.addEventListener('click', async () => {
@@ -345,6 +355,7 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 loadProductsFromFirebase();
 updateCartUI();
 saveCart();
+
 
 
 
