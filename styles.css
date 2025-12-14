@@ -164,3 +164,19 @@ body{
   opacity: 1 !important;
   margin-top: 12px;
 }
+
+/* FIX CART SUMMARY LAYOUT */
+.cart-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: visible !important;
+}
+
+/* FORCE UPI BUTTON VISIBILITY */
+#upiBtn {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 100%;
+}
