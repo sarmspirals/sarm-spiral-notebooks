@@ -282,8 +282,8 @@ function upiUri(vpa, name, amount, txnNote, txId){
   const a = Number(amount).toFixed(2);
   const encodedName = encodeURIComponent(name);
   const encodedNote = encodeURIComponent(txnNote || '');
-  const uri = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodedName}&tr=${encodeURIComponent(txId)}&am=${a}&cu=INR&tn=${encodedNote}`;
-  return uri;
+ const upiURL = `upi://pay?pa=7006927825@pz&pn=SARM Spiral Notebooks&am=${total}&cu=INR`;
+window.open(upiURL, "_blank");
 }
 
 function showUpiModal(orderId, amount){
@@ -316,6 +316,7 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 loadProductsFromFirebase();
 updateCartUI();
 saveCart();
+
 
 
 
