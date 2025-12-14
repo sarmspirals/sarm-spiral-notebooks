@@ -165,14 +165,18 @@ body{
   margin-top: 12px;
   position: relative;
   z-index: 9999 !important;
+   background: #000 !important;
+  color: #fff !important;
+  border: none !important;
 }
 
 /* FIX CART SUMMARY LAYOUT */
 .cart-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  overflow: visible !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px;
+  position: relative;
+  z-index: 9999;
 }
 
 /* FORCE UPI BUTTON VISIBILITY */
@@ -182,4 +186,5 @@ body{
   opacity: 1 !important;
   width: 100%;
 }
+
 
