@@ -26,10 +26,6 @@ async function loadProductsFromFirebase() {
   renderProducts();
 }
 
-
-// PRODUCT DATA
-const PRODUCTS = []
-
 // UPI DETAILS (already set by you)
 const UPI_VPA   = "7006927825@pz";
 const UPI_NAME  = "SARM Spiral Notebooks";
@@ -320,6 +316,7 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 loadProductsFromFirebase();
 updateCartUI();
 saveCart();
+
 
 
 
