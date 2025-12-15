@@ -303,6 +303,11 @@ const paymentMethod = paymentMethodEl ? paymentMethodEl.value : "COD";
     const upiURL = `upi://pay?pa=7006927825@pz&pn=SARM Spiral Notebooks&am=${total}&cu=INR`;
     if (paymentMethod === "UPI") {
   window.showUpiQR(total);
+
+  // ⛔ STOP further checkout execution
+  return;
+}
+
 }
     // WhatsApp alert to admin
     const whatsappMessage = `
@@ -326,10 +331,11 @@ ${cartItems.map(i => `• ${i.title} x ${i.qty} = Rs ${i.price * i.qty}`).join('
     );
 
     // Clear cart
+  if (paymentMethod === "COD") {
     cart = {};
     saveCart();
     updateCartUI();
-
+  }
 setTimeout(() => {
     window.location.href = "success.html";
 }, 500);
@@ -384,6 +390,7 @@ window.showUpiQR = function (amount) {
 
   amtText.textContent = `Amount to pay: Rs ${amount}`;
 };
+
 
 
 
