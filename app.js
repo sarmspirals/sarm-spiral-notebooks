@@ -391,6 +391,15 @@ window.showUpiQR = function (amount) {
   amtText.textContent = `Amount to pay: Rs ${amount}`;
 };
 
+document.getElementById("upiPaidBtn").addEventListener("click", () => {
+  document.getElementById("upiModal").style.display = "none";
+
+  cart = {};
+  saveCart();
+  updateCartUI();
+
+  window.location.href = "success.html";
+});
 
 
 
