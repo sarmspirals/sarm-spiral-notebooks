@@ -83,3 +83,32 @@ function loadOrders(){
     ordersList.innerHTML = '<p class="muted">Could not load orders.</p>';
   });
 }
+// ===============================
+// SHOW UPI QR MODAL
+// ===============================
+function showUpiQR(amount) {
+  const modal = document.getElementById("upiModal");
+  const qrBox = document.getElementById("upiQR");
+  const amtText = document.getElementById("upiAmount");
+
+  if (!modal || !qrBox || !amtText) {
+    console.error("UPI modal elements missing in HTML");
+    alert("UPI payment UI not available. Please choose COD.");
+    return;
+  }
+
+  qrBox.innerHTML = "";
+
+  const upiURL =
+    `upi://pay?pa=7006927825@pz&pn=SARM Spiral Notebooks&am=${amount}&cu=INR`;
+
+  new QRCode(qrBox, {
+    text: upiURL,
+    width: 200,
+    height: 200
+  });
+
+  amtText.textContent = `Amount to pay: Rs ${amount}`;
+  modal.style.display = "flex";
+}
+
