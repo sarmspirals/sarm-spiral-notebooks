@@ -362,7 +362,6 @@ darkToggle && darkToggle.addEventListener('click', ()=> applyDarkMode(localStora
 applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 
 // INIT
-loadProductsFromFirebase();
 updateCartUI();
 saveCart();
 
@@ -391,15 +390,23 @@ window.showUpiQR = function (amount) {
   amtText.textContent = `Amount to pay: Rs ${amount}`;
 };
 
-document.getElementById("upiPaidBtn").addEventListener("click", () => {
-  document.getElementById("upiModal").style.display = "none";
+document.addEventListener("DOMContentLoaded", () => {
+  const paidBtn = document.getElementById("upiPaidBtn");
 
-  cart = {};
-  saveCart();
-  updateCartUI();
+  if (paidBtn) {
+    paidBtn.addEventListener("click", () => {
+      document.getElementById("upiModal").style.display = "none";
 
-  window.location.href = "success.html";
+      cart = {};
+      saveCart();
+      updateCartUI();
+
+      window.location.href = "success.html";
+    });
+  }
 });
+
+loadProductsFromFirebase();
 
 
 
