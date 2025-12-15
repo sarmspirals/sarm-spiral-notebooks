@@ -66,26 +66,32 @@
   </main>
 
   <!-- CART -->
- <div class="cart-summary">
-  <strong>Total: <span id="cartTotal">Rs 0</span></strong>
-</div>
+<aside id="cartPanel" class="cart-panel">
+  <button id="closeCart" class="close-x">✕</button>
+  <h3>Your Cart</h3>
+
+  <!-- REQUIRED -->
+  <div id="cartItems"></div>
+
+  <div class="cart-summary">
+    <strong>Total: <span id="cartTotal">Rs 0</span></strong>
+  </div>
 
   <!-- PAYMENT METHOD -->
-<div style="margin:12px 0;">
-  <label style="display:block;font-weight:600;margin-bottom:6px;">
-    Payment Method
-  </label>
+  <div style="margin:12px 0;">
+    <label style="font-weight:600;">Payment Method</label><br>
+    <label><input type="radio" name="paymentMethod" value="COD" checked> Cash on Delivery</label><br>
+    <label><input type="radio" name="paymentMethod" value="UPI"> UPI</label>
+  </div>
 
-  <label style="display:block;margin-bottom:4px;">
-    <input type="radio" name="paymentMethod" value="COD" checked>
-    Cash on Delivery
-  </label>
+  <button id="checkoutBtn" class="btn-primary" style="width:100%;">
+    Checkout
+  </button>
 
-  <label style="display:block;">
-    <input type="radio" name="paymentMethod" value="UPI">
-    UPI (Scan QR & Pay)
-  </label>
-</div>
+  <button id="upiBtn" style="width:100%;margin-top:10px;">
+    Pay via UPI
+  </button>
+</aside>
 
 <button id="checkoutBtn" class="btn-primary" style="width:100%; margin-top:10px;">
   Checkout (UPI)
@@ -128,6 +134,7 @@
   </footer>
 </body>
 </html>
+
 
 
 
