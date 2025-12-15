@@ -168,12 +168,11 @@ function updateCartUI(){
   const { total, items } = cartSummary();
   cartCount.textContent = items;
   cartTotalEl.textContent = 'Rs ' + total;
+ if (!cartItemsEl) {
+  console.error("cartItems element not found in DOM");
+  return;
+}
   cartItemsEl.innerHTML = '';
-
-  if (items === 0) {
-    cartItemsEl.innerHTML = '<p class="muted">Cart is empty</p>';
-    return;
-  }
 
   for (const id in cart){
     const p = PRODUCTS.find(x => x.id === id);
@@ -360,6 +359,7 @@ applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 loadProductsFromFirebase();
 updateCartUI();
 saveCart();
+
 
 
 
