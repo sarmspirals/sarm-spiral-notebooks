@@ -360,29 +360,21 @@ loadProductsFromFirebase();
 updateCartUI();
 saveCart();
 
-// ===============================
-// GLOBAL UPI QR FUNCTION (FIX)
-// ===============================
 window.showUpiQR = function (amount) {
   const modal = document.getElementById("upiModal");
   const qrBox = document.getElementById("upiQR");
   const amtText = document.getElementById("upiAmount");
 
-  if (!modal || !qrBox || !amtText) {
-    console.error("UPI modal elements missing");
-    alert("UPI payment UI error. Please choose Cash on Delivery.");
+  modal.style.display = "flex";
+  qrBox.innerHTML = "";
+
+  if (typeof QRCode === "undefined") {
+    alert("QR system not loaded. Please refresh the page.");
     return;
   }
-
-  qrBox.innerHTML = "";
 
   const upiURL =
     `upi://pay?pa=7006927825@pz&pn=SARM Spiral Notebooks&am=${amount}&cu=INR`;
-
-  if (typeof QRCode === "undefined") {
-    alert("QR library not loaded");
-    return;
-  }
 
   new QRCode(qrBox, {
     text: upiURL,
@@ -391,8 +383,9 @@ window.showUpiQR = function (amount) {
   });
 
   amtText.textContent = `Amount to pay: Rs ${amount}`;
-  modal.style.display = "flex";
 };
+
+
 
 
 
