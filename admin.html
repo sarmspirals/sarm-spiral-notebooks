@@ -72,16 +72,25 @@
   const ordersDiv = document.getElementById("orders");
 
   // 🔐 AUTH STATE
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      loginBox.style.display = "none";
-      adminPanel.classList.remove("hidden");
-      loadOrders();
-    } else {
+ auth.onAuthStateChanged(user => {
+  if (user) {
+    if (!user.emailVerified) {
+      alert("Please verify your email to access admin panel.");
+      auth.signOut();
       loginBox.style.display = "block";
       adminPanel.classList.add("hidden");
+      return;
     }
-  });
+
+    loginBox.style.display = "none";
+    adminPanel.classList.remove("hidden");
+    loadOrders();
+  } else {
+    loginBox.style.display = "block";
+    adminPanel.classList.add("hidden");
+  }
+});
+
 
   function login() {
     const email = document.getElementById("email").value;
@@ -155,3 +164,4 @@ Thank you 🙏
 
 </body>
 </html>
+
