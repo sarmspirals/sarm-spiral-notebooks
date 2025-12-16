@@ -361,9 +361,6 @@ function applyDarkMode(on){
 darkToggle && darkToggle.addEventListener('click', ()=> applyDarkMode(localStorage.getItem('sarm_dark') !== '1'));
 applyDarkMode(localStorage.getItem('sarm_dark') === '1');
 
-// INIT
-updateCartUI();
-saveCart();
 
 window.showUpiQR = function (amount) {
   const modal = document.getElementById("upiModal");
@@ -406,8 +403,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// INIT
+updateCartUI();
+saveCart();
 loadProductsFromFirebase();
-
 
 
 
