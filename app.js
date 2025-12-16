@@ -440,10 +440,6 @@ Your order is being processed.
   }
 });
 
-// INIT
-updateCartUI();
-saveCart();
-loadProductsFromFirebase();
 
 document.addEventListener("DOMContentLoaded", () => {
   const paidBtn = document.getElementById("upiPaidBtn");
@@ -477,6 +473,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// INIT
+updateCartUI();
+saveCart();
+loadProductsFromFirebase();
 
 
 
