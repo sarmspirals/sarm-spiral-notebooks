@@ -1,121 +1,36 @@
-// === FIREBASE CONFIG (your provided config) ===
+/*************************
+ * FIREBASE INITIALIZATION
+ *************************/
 const firebaseConfig = {
   apiKey: "AIzaSyB2bfLiik96iccPzM3v7dz-Tc-S_4R4pHc",
   authDomain: "sarm-spiral-notebooks.firebaseapp.com",
   projectId: "sarm-spiral-notebooks",
   storageBucket: "sarm-spiral-notebooks.firebasestorage.app",
   messagingSenderId: "486034342174",
-  appId: "1:486034342174:web:a1b964d3a1e8abee90890f",
-  measurementId: "G-JCPQTB8KHZ"
+  appId: "1:486034342174:web:a1b964d3a1e8abee90890f"
 };
-// ======================================================
 
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const auth = firebase.auth();
 
+/*****************
+ * GLOBAL STATE
+ *****************/
 let PRODUCTS = [];
-async function loadProductsFromFirebase() {
-  const snapshot = await db.collection("products").get();
+let cart = JSON.parse(localStorage.getItem("sarm_cart") || "{}");
 
-  PRODUCTS = snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  }));
-
-  renderProducts();
+/*****************
+ * HELPERS
+ *****************/
+function normalizePhone(phone) {
+  return phone.replace(/\D/g, "").slice(-10);
 }
 
-// UPI DETAILS (already set by you)
-const UPI_VPA   = "7006927825@pz";
-const UPI_NAME  = "SARM Spiral Notebooks";
-function getDeliveryDetails() {
-  const name = prompt("Enter your full name:");
-  const phone = prompt("Enter your phone number:");
-  const address = prompt("Enter delivery address:");
+function cartSummary() {
+  let total = 0;
+  let items = 0;
 
-  if (!name || !phone || !address) {
-    alert("Delivery details required!");
-    return null;
-  }
-
-  return { name, phone, address };
-}
-function generateInvoice(order) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.setFontSize(16);
-  doc.text("SARM SPIRAL NOTEBOOKS", 20, 20);
-
-  doc.setFontSize(12);
-  doc.text(`Customer Name: ${order.customer.name}`, 20, 35);
-  doc.text(`Phone: ${order.customer.phone}`, 20, 45);
-  doc.text(`Address: ${order.customer.address}`, 20, 55);
-
-  doc.text("Order Details:", 20, 70);
-
-  let y = 80;
-  order.items.forEach(item => {
-    doc.text(
-      `${item.title} x ${item.qty} = Rs ${item.price * item.qty}`,
-      20,
-      y
-    );
-    y += 10;
-  });
-
-  doc.text(`Total Amount: Rs ${order.total}`, 20, y + 10);
-
-  doc.save(`SARM-Invoice-${Date.now()}.pdf`);
-}
-
-
-// DOM element refs
-const productsGrid = document.getElementById('productsGrid');
-const cartBtn = document.getElementById('cartBtn');
-const cartPanel = document.getElementById('cartPanel');
-const cartCount = document.getElementById('cartCount');
-const cartItemsEl = document.getElementById('cartItems');
-const cartTotalEl = document.getElementById('cartTotal');
-const checkoutBtn = document.getElementById('checkoutBtn');
-const upiBtn = document.getElementById('upiBtn');
-const closeCartBtn = document.getElementById('closeCart');
-const upiModal = document.getElementById('upiModal');
-const qrcodeEl = document.getElementById('qrcode');
-const upiText = document.getElementById('upiText');
-const closeUpi = document.getElementById('closeUpi');
-const finishBtn = document.getElementById('finishBtn');
-const darkToggle = document.getElementById('darkToggle');
-const yearEl = document.getElementById('year');
-
-yearEl && (yearEl.textContent = new Date().getFullYear());
-
-// CART SYSTEM (localStorage)
-let cart = JSON.parse(localStorage.getItem('sarm_cart') || '{}');
-
-function saveCart(){
-  localStorage.setItem('sarm_cart', JSON.stringify(cart));
-  updateCartUI();
-}
-
-function addToCart(id){
-  cart[id] = (cart[id] || 0) + 1;
-  saveCart();
-}
-
-function changeQty(productId, qty){
-  if (qty <= 0) {
-    delete cart[productId];
-  } else {
-    cart[productId] = qty;
-  }
-  saveCart();
-}
-
-function cartSummary(){
-  let total = 0, items = 0;
-  for (const id in cart){
+  for (const id in cart) {
     const p = PRODUCTS.find(x => x.id === id);
     if (!p) continue;
     total += p.price * cart[id];
@@ -124,109 +39,134 @@ function cartSummary(){
   return { total, items };
 }
 
-// RENDER PRODUCTS
-function renderProducts(){
-  productsGrid.innerHTML = '';
-  PRODUCTS.forEach(p=>{
-    const div = document.createElement('div');
-    div.className = 'product';
-    div.innerHTML = `
-      <img src="${p.img}" alt="${p.title}">
-      <h3>${p.title}</h3>
-      <div>Pages: ${p.pages}</div>
-      <div class="price">Rs ${p.price}</div>
-      <div class="actions">
-        ${p.stock > 0
-  ? `<button class="btn btn-primary" data-add="${p.id}">Buy Now</button>`
-  : `<button class="btn btn-outline" disabled>Out of Stock</button>`
+function saveCart() {
+  localStorage.setItem("sarm_cart", JSON.stringify(cart));
+  updateCartUI();
 }
-      </div>
+
+/*****************
+ * LOAD PRODUCTS
+ *****************/
+async function loadProductsFromFirebase() {
+  const snap = await db.collection("products").get();
+  PRODUCTS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderProducts();
+}
+
+/*****************
+ * DOM ELEMENTS
+ *****************/
+const productsGrid = document.getElementById("productsGrid");
+const cartPanel = document.getElementById("cartPanel");
+const cartBtn = document.getElementById("cartBtn");
+const closeCartBtn = document.getElementById("closeCart");
+const cartItemsEl = document.getElementById("cartItems");
+const cartTotalEl = document.getElementById("cartTotal");
+const cartCount = document.getElementById("cartCount");
+const checkoutBtn = document.getElementById("checkoutBtn");
+
+const upiModal = document.getElementById("upiModal");
+const upiQR = document.getElementById("upiQR");
+const upiAmount = document.getElementById("upiAmount");
+const upiPaidBtn = document.getElementById("upiPaidBtn");
+
+/*****************
+ * CART UI
+ *****************/
+function renderProducts() {
+  productsGrid.innerHTML = "";
+  PRODUCTS.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "product";
+    div.innerHTML = `
+      <img src="${p.img}">
+      <h3>${p.title}</h3>
+      <p>Pages: ${p.pages}</p>
+      <strong>Rs ${p.price}</strong>
+      ${
+        p.stock > 0
+          ? `<button data-id="${p.id}">Buy Now</button>`
+          : `<button disabled>Out of Stock</button>`
+      }
     `;
     productsGrid.appendChild(div);
   });
 
-  productsGrid.querySelectorAll('[data-add]').forEach(btn=>{
-    btn.addEventListener('click', e=>{
-      const id = e.currentTarget.getAttribute('data-add');
-      addToCart(id);
+  productsGrid.querySelectorAll("button[data-id]").forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.dataset.id;
+      cart[id] = (cart[id] || 0) + 1;
+      saveCart();
       openCart();
-    });
-  });
-
-  productsGrid.querySelectorAll('[data-detail]').forEach(btn=>{
-    btn.addEventListener('click', e=>{
-      const id = e.currentTarget.getAttribute('data-detail');
-      const p = PRODUCTS.find(x=>x.id===id);
-      // Simple product detail modal/alert (you can replace with full page)
-      alert(`${p.title}\nPrice: Rs ${p.price}\nPages: ${p.pages}`);
-    });
+    };
   });
 }
 
-// CART UI
-function updateCartUI(){
+function updateCartUI() {
   const { total, items } = cartSummary();
+  cartItemsEl.innerHTML = "";
+  cartTotalEl.textContent = `Rs ${total}`;
   cartCount.textContent = items;
-  cartTotalEl.textContent = 'Rs ' + total;
- if (!cartItemsEl) {
-  console.error("cartItems element not found in DOM");
-  return;
-}
-  cartItemsEl.innerHTML = '';
 
-  for (const id in cart){
+  for (const id in cart) {
     const p = PRODUCTS.find(x => x.id === id);
     if (!p) continue;
-    const qty = cart[id];
-    const row = document.createElement('div');
-    row.style.display='flex';
-    row.style.justifyContent='space-between';
-    row.style.alignItems='center';
-    row.style.padding='8px 0';
-    row.innerHTML = `
-      <div style="flex:1">
-        <div style="font-weight:700">${p.title}</div>
-        <div class="muted">Rs ${p.price} x ${qty}</div>
-      </div>
-      <div>
-        <button data-minus="${id}" class="btn btn-outline">-</button>
-        <span style="margin:0 8px">${qty}</span>
-        <button data-plus="${id}" class="btn btn-outline">+</button>
-      </div>
-    `;
+
+    const row = document.createElement("div");
+    row.innerHTML = `${p.title} x ${cart[id]}`;
     cartItemsEl.appendChild(row);
   }
-
-  cartItemsEl.querySelectorAll('[data-plus]').forEach(b=>b.addEventListener('click', e=>{
-    const id = e.currentTarget.getAttribute('data-plus');
-    changeQty(id, (cart[id]||0) + 1);
-  }));
-  cartItemsEl.querySelectorAll('[data-minus]').forEach(b=>b.addEventListener('click', e=>{
-    const id = e.currentTarget.getAttribute('data-minus');
-    changeQty(id, (cart[id]||0) - 1);
-  }));
 }
 
-// open/close cart
-function openCart(){ cartPanel.classList.add('open'); cartPanel.setAttribute('aria-hidden','false'); updateCartUI(); }
-function closeCart(){ cartPanel.classList.remove('open'); cartPanel.setAttribute('aria-hidden','true'); }
+/*****************
+ * CART OPEN/CLOSE
+ *****************/
+function openCart() {
+  cartPanel.classList.add("open");
+}
+function closeCart() {
+  cartPanel.classList.remove("open");
+}
+cartBtn.onclick = openCart;
+closeCartBtn.onclick = closeCart;
 
-cartBtn && cartBtn.addEventListener('click', openCart);
-closeCartBtn && closeCartBtn.addEventListener('click', closeCart);
-upiBtn && upiBtn.addEventListener('click', () => {
-  const { total, items } = cartSummary();
+/*****************
+ * DELIVERY FORM
+ *****************/
+function getDeliveryDetails() {
+  const name = prompt("Full Name:");
+  const phone = prompt("Phone Number:");
+  const address = prompt("Delivery Address:");
+  if (!name || !phone || !address) return null;
+  return { name, phone, address };
+}
 
-  if (items === 0) {
-    alert("Cart is empty");
-    return;
-  }
+/*****************
+ * UPI QR
+ *****************/
+function showUpiQR(amount) {
+  upiModal.style.display = "flex";
+  upiQR.innerHTML = "";
 
-  showUpiQR(total);
-});
+  const upiURL =
+    `upi://pay?pa=7006927825@pz&pn=SARM Spiral Notebooks&am=${amount}&cu=INR`;
 
-// CHECKOUT -> Create order in Firestore + show UPI QR
-checkoutBtn.addEventListener("click", () => {
+  new QRCode(upiQR, { modal: upiURL, width: 200, height: 200 });
+  upiAmount.textContent = `Amount to pay: Rs ${amount}`;
+}
 
+upiPaidBtn.onclick = () => {
+  if (!confirm("Have you completed the UPI payment?")) return;
+  upiModal.style.display = "none";
+  cart = {};
+  saveCart();
+  location.href = "success.html";
+};
+
+/*****************
+ * CHECKOUT (SINGLE CLEAN FLOW)
+ *****************/
+checkoutBtn.onclick = async () => {
   const paymentMethod =
     document.querySelector('input[name="paymentMethod"]:checked')?.value || "COD";
 
@@ -239,219 +179,44 @@ checkoutBtn.addEventListener("click", () => {
   const customer = getDeliveryDetails();
   if (!customer) return;
 
-  const customerPhone = customer.phone.replace(/\D/g, "").slice(-10);
+  const phone = normalizePhone(customer.phone);
 
-  // ✅ WhatsApp message (CUSTOMER)
-  const customerMsg =
-`✅ Order Confirmed – SARM Spiral Notebooks
-
-Name: ${customer.name}
-Total: Rs ${summary.total}
-Payment: ${paymentMethod}
-
-Thank you for your order 🙏`;
-
-  // ✅ WhatsApp message (ADMIN)
-  const adminMsg =
-`🛒 NEW ORDER – SARM SPIRAL NOTEBOOKS
-
-Name: ${customer.name}
-Phone: ${customer.phone}
-Total: Rs ${summary.total}
-Payment: ${paymentMethod}`;
-
-  // 🔥 MUST RUN IMMEDIATELY (browser rule)
+  // WhatsApp (CUSTOMER)
   window.open(
-    `https://wa.me/91${customerPhone}?text=${encodeURIComponent(customerMsg)}`,
+    `https://wa.me/91${phone}?text=${encodeURIComponent(
+      `✅ Order Confirmed\nTotal: Rs ${summary.total}\nPayment: ${paymentMethod}`
+    )}`,
     "_blank"
   );
 
+  // WhatsApp (ADMIN)
   window.open(
-    `https://wa.me/917006927825?text=${encodeURIComponent(adminMsg)}`,
+    `https://wa.me/917006927825?text=${encodeURIComponent(
+      `🛒 New Order\nName: ${customer.name}\nTotal: Rs ${summary.total}\nPayment: ${paymentMethod}`
+    )}`,
     "_blank"
   );
 
-  // ---- AFTER THIS POINT async is OK ----
-
-  if (paymentMethod === "UPI") {
-    showUpiQR(summary.total);
-  }
-
-  db.collection("orders").add({
+  await db.collection("orders").add({
     customer,
     total: summary.total,
     paymentMethod,
+    status: "pending",
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
 
-  if (paymentMethod === "COD") {
-    cart = {};
-    saveCart();
-    location.href = "success.html";
-  }
-});
-
-
-    // Generate Invoice PDF
-    if (typeof generateInvoice === "function") {
-      generateInvoice(order);
-    }
-
-    // Open UPI payment
-    const upiURL = `upi://pay?pa=7006927825@pz&pn=SARM Spiral Notebooks&am=${total}&cu=INR`;
-    if (paymentMethod === "UPI") {
-  window.showUpiQR(total);
-
-  // ⛔ STOP further checkout execution
-}
-
-    // WhatsApp alert to admin
-    const whatsappMessage = `
-🛒 NEW ORDER - SARM SPIRAL NOTEBOOKS
-
-👤 Name: ${customer.name}
-📞 Phone: ${customer.phone}
-🏠 Address: ${customer.address}
-💳 Payment Method: ${paymentMethod}
-
-📦 Order Items:
-${cartItems.map(i => `• ${i.title} x ${i.qty} = Rs ${i.price * i.qty}`).join('\n')}
-
-💰 Total: Rs ${total}
-🆔 Order ID: ${docRef.id}
-    `;
-
-   
-    // Clear cart
-  if (paymentMethod === "COD") {
-    cart = {};
-    saveCart();
-    updateCartUI();
-  }
-setTimeout(() => {
-    window.location.href = "success.html";
-}, 500);
-   {
-    console.error("Checkout error:", err);
-    alert("Checkout failed. Please try again.");
-  }
-});
-
-closeUpi && closeUpi.addEventListener('click', ()=>{
-  upiModal.classList.remove('show'); upiModal.setAttribute('aria-hidden','true');
-});
-finishBtn && finishBtn.addEventListener('click', ()=>{
-  upiModal.classList.remove('show'); upiModal.setAttribute('aria-hidden','true');
-});
-
-// DARK MODE
-function applyDarkMode(on){
-  if (on) document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark');
-  localStorage.setItem('sarm_dark', on ? '1' : '0');
-  if (darkToggle) darkToggle.textContent = on ? '☀️' : '🌙';
-}
-darkToggle && darkToggle.addEventListener('click', ()=> applyDarkMode(localStorage.getItem('sarm_dark') !== '1'));
-applyDarkMode(localStorage.getItem('sarm_dark') === '1');
-
-
-window.showUpiQR = function (amount) {
-  const modal = document.getElementById("upiModal");
-  const qrBox = document.getElementById("upiQR");
-  const amtText = document.getElementById("upiAmount");
-
-  modal.style.display = "flex";
-  qrBox.innerHTML = "";
-
-  if (typeof QRCode === "undefined") {
-    alert("QR system not loaded. Please refresh the page.");
+  if (paymentMethod === "UPI") {
+    showUpiQR(summary.total);
     return;
   }
 
-  const upiURL =
-    `upi://pay?pa=7006927825@pz&pn=SARM Spiral Notebooks&am=${amount}&cu=INR`;
-
-  new QRCode(qrBox, {
-    text: upiURL,
-    width: 200,
-    height: 200
-  });
-
-  amtText.textContent = `Amount to pay: Rs ${amount}`;
+  cart = {};
+  saveCart();
+  location.href = "success.html";
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-  const paidBtn = document.getElementById("upiPaidBtn");
-
-  if (paidBtn) {
-    paidBtn.addEventListener("click", () => {
-     if (!confirm("Have you completed the UPI payment?")) return;
-
-  const customerMsg = `
-✅ Payment Received – SARM Spiral Notebooks
-
-Thank you ${customer.name}!
-
-🧾 Total: Rs ${total}
-📦 Payment: UPI
-
-Your order is being processed.
-
-– SARM Spiral Notebooks
-`;
-
- 
-  );
-      document.getElementById("upiModal").style.display = "none";
-
-      cart = {};
-      saveCart();
-      updateCartUI();
-
-      window.location.href = "success.html";
-    });
-  }
-});
-
-
-document.addEventListener("DOMContentLoaded", () => {
-  const paidBtn = document.getElementById("upiPaidBtn");
-
-  if (!paidBtn) return;
-
-  paidBtn.addEventListener("click", function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    // 🔒 prevent multiple clicks
-    if (paidBtn.dataset.clicked === "true") return;
-    paidBtn.dataset.clicked = "true";
-
-    const confirmed = confirm("Have you completed the UPI payment?");
-    if (!confirmed) {
-      paidBtn.dataset.clicked = "false";
-      return;
-    }
-
-    // ✅ CLOSE MODAL
-    document.getElementById("upiModal").style.display = "none";
-
-    // ✅ CLEAR CART
-    cart = {};
-    saveCart();
-    updateCartUI();
-
-    // ✅ REDIRECT
-    window.location.href = "success.html";
-  });
-});
-
-// INIT
+/*****************
+ * INIT
+ *****************/
 updateCartUI();
-saveCart();
 loadProductsFromFirebase();
-
-
-
-
-
-
