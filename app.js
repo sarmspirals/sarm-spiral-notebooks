@@ -410,6 +410,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (paidBtn) {
     paidBtn.addEventListener("click", () => {
+     if (!confirm("Have you completed the UPI payment?")) return;
+
+  const customerMsg = `
+✅ Payment Received – SARM Spiral Notebooks
+
+Thank you ${customer.name}!
+
+🧾 Total: Rs ${total}
+📦 Payment: UPI
+
+Your order is being processed.
+
+– SARM Spiral Notebooks
+`;
+
+  window.open(
+    `https://wa.me/91${customer.phone}?text=${encodeURIComponent(customerMsg)}`,
+    "_blank"
+  );
       document.getElementById("upiModal").style.display = "none";
 
       cart = {};
@@ -425,6 +444,7 @@ document.addEventListener("DOMContentLoaded", () => {
 updateCartUI();
 saveCart();
 loadProductsFromFirebase();
+
 
 
 
