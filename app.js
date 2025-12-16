@@ -145,15 +145,30 @@ function getDeliveryDetails() {
  * UPI QR
  *****************/
 function showUpiQR(amount) {
-  upiModal.style.display = "flex";
-  upiQR.innerHTML = "";
+  const modal = document.getElementById("upiModal");
+  const qrBox = document.getElementById("upiQR");
+  const amtText = document.getElementById("upiAmount");
+
+  modal.style.display = "flex";
+  qrBox.innerHTML = "";
+
+  if (typeof QRCode === "undefined") {
+    alert("QR library not loaded");
+    return;
+  }
 
   const upiURL =
     `upi://pay?pa=7006927825@pz&pn=SARM Spiral Notebooks&am=${amount}&cu=INR`;
 
-  new QRCode(upiQR, { modal: upiURL, width: 200, height: 200 });
-  upiAmount.textContent = `Amount to pay: Rs ${amount}`;
+  new QRCode(qrBox, {
+    text: upiURL,
+    width: 220,
+    height: 220
+  });
+
+  amtText.textContent = `Amount to pay: Rs ${amount}`;
 }
+
 
 upiPaidBtn.onclick = () => {
   if (!confirm("Have you completed the UPI payment?")) return;
@@ -220,4 +235,5 @@ checkoutBtn.onclick = async () => {
  *****************/
 updateCartUI();
 loadProductsFromFirebase();
+
 
