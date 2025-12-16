@@ -445,6 +445,38 @@ updateCartUI();
 saveCart();
 loadProductsFromFirebase();
 
+document.addEventListener("DOMContentLoaded", () => {
+  const paidBtn = document.getElementById("upiPaidBtn");
+
+  if (!paidBtn) return;
+
+  paidBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // 🔒 prevent multiple clicks
+    if (paidBtn.dataset.clicked === "true") return;
+    paidBtn.dataset.clicked = "true";
+
+    const confirmed = confirm("Have you completed the UPI payment?");
+    if (!confirmed) {
+      paidBtn.dataset.clicked = "false";
+      return;
+    }
+
+    // ✅ CLOSE MODAL
+    document.getElementById("upiModal").style.display = "none";
+
+    // ✅ CLEAR CART
+    cart = {};
+    saveCart();
+    updateCartUI();
+
+    // ✅ REDIRECT
+    window.location.href = "success.html";
+  });
+});
+
 
 
 
