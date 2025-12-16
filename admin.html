@@ -1,40 +1,67 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>SARM Admin Panel</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script defer src="admin.js"></script>
+  <meta charset="UTF-8">
+  <title>Admin – Orders</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background:#f5f5f5;
+      padding:20px;
+    }
+    h2 { text-align:center; }
+    .order {
+      background:#fff;
+      padding:15px;
+      margin-bottom:15px;
+      border-radius:8px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+    }
+    .order strong { display:block; margin-top:5px; }
+  </style>
 </head>
-
 <body>
-  <header class="site-header">
-    <div class="brand">
-      <svg width="48" height="48" viewBox="0 0 100 100">
-        <rect width="100" height="100" rx="16" fill="#1a73e8"/>
-        <text x="50" y="60" fill="white" font-size="50" text-anchor="middle">S</text>
-      </svg>
-      <h1>Admin — SARM</h1>
-    </div>
-    <button id="logoutBtn" class="pill">Logout</button>
-  </header>
 
-  <main class="container">
-    <section id="authSection">
-      <h2>Admin Login</h2>
-      <input id="email" type="email" placeholder="Email"><br><br>
-      <input id="password" type="password" placeholder="Password"><br><br>
-      <button id="loginBtn" class="btn-primary">Login</button>
-    </section>
+<h2>📦 SARM Orders Dashboard</h2>
 
-    <section id="panel" style="display:none;">
-      <h2>Orders</h2>
-      <div id="ordersList"></div>
-    </section>
-  </main>
+<div id="orders"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB2bfLiik96iccPzM3v7dz-Tc-S_4R4pHc",
+    authDomain: "sarm-spiral-notebooks.firebaseapp.com",
+    projectId: "sarm-spiral-notebooks",
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const ordersDiv = document.getElementById("orders");
+
+  db.collection("orders")
+    .orderBy("createdAt", "desc")
+    .onSnapshot(snapshot => {
+      ordersDiv.innerHTML = "";
+      snapshot.forEach(doc => {
+        const o = doc.data();
+        const div = document.createElement("div");
+        div.className = "order";
+        div.innerHTML = `
+          <strong>Order ID:</strong> ${doc.id}
+          <strong>Name:</strong> ${o.customer.name}
+          <strong>Phone:</strong> ${o.customer.phone}
+          <strong>Address:</strong> ${o.customer.address}
+          <strong>Payment:</strong> ${o.paymentMethod || "UPI"}
+          <strong>Totals:</strong> Rs ${o.total}
+        `;
+        ordersDiv.appendChild(div);
+      });
+    });
+</script>
+
 </body>
 </html>
-
