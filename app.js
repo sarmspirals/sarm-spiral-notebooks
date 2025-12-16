@@ -225,92 +225,72 @@ upiBtn && upiBtn.addEventListener('click', () => {
 });
 
 // CHECKOUT -> Create order in Firestore + show UPI QR
-checkoutBtn && checkoutBtn.addEventListener('click', async () => {
-  const paymentMethodEl = document.querySelector('input[name="paymentMethod"]:checked');
-const paymentMethod = paymentMethodEl ? paymentMethodEl.value : "COD";
-  try {
-    // Ensure products loaded
-    if (!PRODUCTS || PRODUCTS.length === 0) {
-      alert("Products are still loading. Please wait.");
-      return;
-    }
+checkoutBtn.addEventListener("click", () => {
 
-    // Build cart items safely
-    const cartItems = Object.keys(cart).map(id => {
-      const product = PRODUCTS.find(p => p.id === id);
-      if (!product) return null;
+  const paymentMethod =
+    document.querySelector('input[name="paymentMethod"]:checked')?.value || "COD";
 
-      return {
-        id: product.id,
-        title: product.title,
-        price: product.price,
-        qty: cart[id]
-      };
-    }).filter(Boolean);
+  const summary = cartSummary();
+  if (summary.items === 0) {
+    alert("Cart is empty");
+    return;
+  }
 
-    if (cartItems.length === 0) {
-      alert("Your cart is empty");
-      return;
-    }
+  const customer = getDeliveryDetails();
+  if (!customer) return;
 
-    // Calculate total
-    const total = cartItems.reduce(
-      (sum, item) => sum + item.price * item.qty,
-      0
-    );
+  const customerPhone = customer.phone.replace(/\D/g, "").slice(-10);
 
-    // Get delivery details
-    const customer = getDeliveryDetails();
-    if (!customer) return;
+  // ✅ WhatsApp message (CUSTOMER)
+  const customerMsg =
+`✅ Order Confirmed – SARM Spiral Notebooks
 
-    // Prevent overselling
-    for (let item of cartItems) {
-      const product = PRODUCTS.find(p => p.id === item.id);
-      if (!product || product.stock < item.qty) {
-        alert(`${product.title} is out of stock`);
-        return;
-      }
-    }
+Name: ${customer.name}
+Total: Rs ${summary.total}
+Payment: ${paymentMethod}
 
-    // Create order object
-    const order = {
-      customer,
-      items: cartItems,
-      total,
-      paymentMethod,
-  status: paymentMethod === "COD" ? "cod_pending" : "upi_pending",
-  createdAt: firebase.firestore.FieldValue.serverTimestamp()
- };
+Thank you for your order 🙏`;
 
-    // Save order to Firestore
-    const docRef = await db.collection("orders").add(order);
-    // 📲 WhatsApp confirmation to CUSTOMER
-const customerMsg = `
-✅ Order Confirmed – SARM Spiral Notebooks
+  // ✅ WhatsApp message (ADMIN)
+  const adminMsg =
+`🛒 NEW ORDER – SARM SPIRAL NOTEBOOKS
 
-Thank you ${customer.name}!
+Name: ${customer.name}
+Phone: ${customer.phone}
+Total: Rs ${summary.total}
+Payment: ${paymentMethod}`;
 
-🧾 Total: Rs ${total}
-📦 Payment: ${paymentMethod}
+  // 🔥 MUST RUN IMMEDIATELY (browser rule)
+  window.open(
+    `https://wa.me/91${customerPhone}?text=${encodeURIComponent(customerMsg)}`,
+    "_blank"
+  );
 
-We will contact you shortly.
+  window.open(
+    `https://wa.me/917006927825?text=${encodeURIComponent(adminMsg)}`,
+    "_blank"
+  );
 
-– SARM Spiral Notebooks
-`;
+  // ---- AFTER THIS POINT async is OK ----
 
-window.open(
-  `https://wa.me/91${customer.phone}?text=${encodeURIComponent(customerMsg)}`,
-  "_blank"
-);
+  if (paymentMethod === "UPI") {
+    showUpiQR(summary.total);
+  }
 
+  db.collection("orders").add({
+    customer,
+    total: summary.total,
+    paymentMethod,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
 
-    // Reduce stock permanently in Firebase
-    for (let item of cartItems) {
-      await db.collection("products")
-        .doc(item.id)
-        .update({
-          stock: firebase.firestore.FieldValue.increment(-item.qty)
-        });
+  if (paymentMethod === "COD") {
+    cart = {};
+    saveCart();
+    location.href = "success.html";
+  }
+});
+
     }
 
     // Generate Invoice PDF
@@ -343,11 +323,7 @@ ${cartItems.map(i => `• ${i.title} x ${i.qty} = Rs ${i.price * i.qty}`).join('
 🆔 Order ID: ${docRef.id}
     `;
 
-    window.open(
-      `https://wa.me/917006927825?text=${encodeURIComponent(whatsappMessage)}`,
-      "_blank"
-    );
-
+   
     // Clear cart
   if (paymentMethod === "COD") {
     cart = {};
@@ -425,9 +401,7 @@ Your order is being processed.
 – SARM Spiral Notebooks
 `;
 
-  window.open(
-    `https://wa.me/91${customer.phone}?text=${encodeURIComponent(customerMsg)}`,
-    "_blank"
+ 
   );
       document.getElementById("upiModal").style.display = "none";
 
@@ -477,3 +451,4 @@ document.addEventListener("DOMContentLoaded", () => {
 updateCartUI();
 saveCart();
 loadProductsFromFirebase();
+
