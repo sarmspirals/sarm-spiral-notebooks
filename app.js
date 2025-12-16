@@ -308,7 +308,6 @@ const paymentMethod = paymentMethodEl ? paymentMethodEl.value : "COD";
   return;
 }
 
-}
     // WhatsApp alert to admin
     const whatsappMessage = `
 🛒 NEW ORDER - SARM SPIRAL NOTEBOOKS
@@ -407,6 +406,7 @@ document.addEventListener("DOMContentLoaded", () => {
 updateCartUI();
 saveCart();
 loadProductsFromFirebase();
+
 
 
 
