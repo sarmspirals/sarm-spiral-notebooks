@@ -93,12 +93,20 @@
 
 
   function login() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-    auth.signInWithEmailAndPassword(email, password)
-      .catch(err => alert(err.message));
-  }
+  auth.signInWithEmailAndPassword(email, password)
+    .then(({ user }) => {
+      if (!user.emailVerified) {
+        user.sendEmailVerification();
+        alert("Verification email sent. Please verify and login again.");
+        auth.signOut();
+      }
+    })
+    .catch(err => alert(err.message));
+}
+
 
   function logout() {
     auth.signOut();
@@ -164,4 +172,5 @@ Thank you 🙏
 
 </body>
 </html>
+
 
