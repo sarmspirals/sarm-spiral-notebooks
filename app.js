@@ -284,6 +284,25 @@ const paymentMethod = paymentMethodEl ? paymentMethodEl.value : "COD";
 
     // Save order to Firestore
     const docRef = await db.collection("orders").add(order);
+    // 📲 WhatsApp confirmation to CUSTOMER
+const customerMsg = `
+✅ Order Confirmed – SARM Spiral Notebooks
+
+Thank you ${customer.name}!
+
+🧾 Total: Rs ${total}
+📦 Payment: ${paymentMethod}
+
+We will contact you shortly.
+
+– SARM Spiral Notebooks
+`;
+
+window.open(
+  `https://wa.me/91${customer.phone}?text=${encodeURIComponent(customerMsg)}`,
+  "_blank"
+);
+
 
     // Reduce stock permanently in Firebase
     for (let item of cartItems) {
@@ -406,6 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
 updateCartUI();
 saveCart();
 loadProductsFromFirebase();
+
 
 
 
