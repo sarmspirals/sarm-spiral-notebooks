@@ -1,114 +1,131 @@
-// Firebase config -- same as app.js
-const firebaseConfig = {
-  apiKey: "AIzaSyB2bfLiik96iccPzM3v7dz-Tc-S_4R4pHc",
-  authDomain: "sarm-spiral-notebooks.firebaseapp.com",
-  projectId: "sarm-spiral-notebooks",
-  storageBucket: "sarm-spiral-notebooks.firebasestorage.app",
-  messagingSenderId: "486034342174",
-  appId: "1:486034342174:web:a1b964d3a1e8abee90890f",
-  measurementId: "G-JCPQTB8KHZ"
-};
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Admin – Orders</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background:#f5f5f5;
+      padding:20px;
+    }
+    h2 { text-align:center; }
+    .order {
+      background:#fff;
+      padding:15px;
+      margin-bottom:15px;
+      border-radius:8px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+    }
+    .hidden { display:none; }
+    #loginBox {
+      max-width:300px;
+      margin:100px auto;
+      background:#fff;
+      padding:20px;
+      border-radius:8px;
+      text-align:center;
+    }
+    input, button {
+      width:100%;
+      padding:10px;
+      margin-top:10px;
+    }
+  </style>
+</head>
+<body>
 
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+<!-- 🔐 LOGIN BOX -->
+<div id="loginBox">
+  <h3>Admin Login</h3>
+  <input type="password" id="adminPass" placeholder="Enter password">
+  <button onclick="login()">Login</button>
+</div>
 
-// DOM
-const authSection = document.getElementById("authSection");
-const panel = document.getElementById("panel");
-const emailIn = document.getElementById("email");
-const passIn = document.getElementById("password");
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const ordersList = document.getElementById("ordersList");
+<!-- 📦 ADMIN DASHBOARD -->
+<div id="adminPanel" class="hidden">
+  <h2>📦 SARM Orders Dashboard</h2>
+  <button onclick="logout()" style="margin-bottom:15px;">Logout</button>
+  <div id="orders"></div>
+</div>
 
-loginBtn && (loginBtn.onclick = async () => {
-  const email = (emailIn && emailIn.value) || '';
-  const pass = (passIn && passIn.value) || '';
-  if(!email || !pass) return alert('Please enter credentials');
-  try { await auth.signInWithEmailAndPassword(email, pass); }
-  catch(e){ alert(e.message); }
-});
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-logoutBtn && (logoutBtn.onclick = () => auth.signOut());
+<script>
+  // 🔐 CHANGE THIS PASSWORD
+  const ADMIN_PASSWORD = "Sameer786@";
 
-auth.onAuthStateChanged(user=>{
-  if (user){
-    if (authSection) authSection.style.display = 'none';
-    if (panel) panel.style.display = 'block';
-    loadOrders();
-  } else {
-    if (authSection) authSection.style.display = 'block';
-    if (panel) panel.style.display = 'none';
+  function login() {
+    const pass = document.getElementById("adminPass").value;
+    if (pass === ADMIN_PASSWORD) {
+      localStorage.setItem("admin_logged_in", "1");
+      showAdmin();
+    } else {
+      alert("Wrong password");
+    }
   }
-});
 
-function loadOrders(){
-  if (!ordersList) return;
-  ordersList.innerHTML = '<p class="muted">Loading…</p>';
-  db.collection('orders').orderBy('createdAt','desc').onSnapshot(snap => {
-    ordersList.innerHTML = '';
-    snap.forEach(doc => {
-      const d = doc.data();
-      const div = document.createElement('div');
-      div.className = 'product';
-      const created = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleString() : '';
-      div.innerHTML = `
-        <strong>Order ${doc.id}</strong><br>
-        Created: ${created}<br>
-        Total: Rs ${d.total}<br>
-        Status: <span id="s-${doc.id}">${d.status || ''}</span>
-        <div style="margin-top:8px">
-          <button class="btn-primary" data-id="${doc.id}" data-action="paid">Mark Paid</button>
-          <button class="btn-outline" data-id="${doc.id}" data-action="shipped">Mark Shipped</button>
-        </div>
-        <div style="margin-top:8px">${(d.items||[]).map(i=>`<div>${i.title} x ${i.qty} — Rs ${i.price}</div>`).join('')}</div>
-      `;
-      ordersList.appendChild(div);
-    });
+  function logout() {
+    localStorage.removeItem("admin_logged_in");
+    location.reload();
+  }
 
-    // attach events
-    ordersList.querySelectorAll('[data-action]').forEach(btn=>{
-      btn.addEventListener('click', async (e) => {
-        const id = e.currentTarget.getAttribute('data-id');
-        const action = e.currentTarget.getAttribute('data-action');
-        if (action === 'paid') await db.collection('orders').doc(id).update({ status: 'paid' });
-        if (action === 'shipped') await db.collection('orders').doc(id).update({ status: 'shipped' });
-        const statusEl = document.getElementById('s-' + id);
-        if (statusEl) statusEl.textContent = action === 'paid' ? 'paid' : 'shipped';
+  function showAdmin() {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("adminPanel").classList.remove("hidden");
+  }
+
+  if (localStorage.getItem("admin_logged_in") === "1") {
+    showAdmin();
+  }
+
+  // 🔥 FIREBASE CONFIG
+  const firebaseConfig = {
+    apiKey: "AIzaSyB2bfLiik96iccPzM3v7dz-Tc-S_4R4pHc",
+    authDomain: "sarm-spiral-notebooks.firebaseapp.com",
+    projectId: "sarm-spiral-notebooks",
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const ordersDiv = document.getElementById("orders");
+
+  db.collection("orders")
+    .orderBy("createdAt", "desc")
+    .onSnapshot(snapshot => {
+      ordersDiv.innerHTML = "";
+      snapshot.forEach(doc => {
+        const o = doc.data();
+        const div = document.createElement("div");
+        div.className = "order";
+        div.innerHTML = `
+          <strong>Order ID:</strong> ${doc.id}<br>
+          <strong>Name:</strong> ${o.customer.name}<br>
+          <strong>Phone:</strong> ${o.customer.phone}<br>
+          <strong>Address:</strong> ${o.customer.address}<br>
+          <strong>Payment:</strong> ${o.paymentMethod}<br>
+        <strong>Status:</strong>
+<select onchange="updateStatus('${doc.id}', this.value)">
+  <option ${o.status==="Pending"?"selected":""}>Pending</option>
+  <option ${o.status==="Shipped"?"selected":""}>Shipped</option>
+  <option ${o.status==="Delivered"?"selected":""}>Delivered</option>
+</select>
+
+          <strong>Total:</strong> Rs ${o.total}
+        `;
+        ordersDiv.appendChild(div);
       });
     });
-  }, err => {
-    console.error(err);
-    ordersList.innerHTML = '<p class="muted">Could not load orders.</p>';
+function updateStatus(orderId, newStatus) {
+  db.collection("orders").doc(orderId).update({
+    status: newStatus
   });
 }
-// ===============================
-// SHOW UPI QR MODAL
-// ===============================
-function showUpiQR(amount) {
-  const modal = document.getElementById("upiModal");
-  const qrBox = document.getElementById("upiQR");
-  const amtText = document.getElementById("upiAmount");
 
-  if (!modal || !qrBox || !amtText) {
-    console.error("UPI modal elements missing in HTML");
-    alert("UPI payment UI not available. Please choose COD.");
-    return;
-  }
+</script>
 
-  qrBox.innerHTML = "";
-
-  const upiURL =
-    `upi://pay?pa=7006927825@pz&pn=SARM Spiral Notebooks&am=${amount}&cu=INR`;
-
-  new QRCode(qrBox, {
-    text: upiURL,
-    width: 200,
-    height: 200
-  });
-
-  amtText.textContent = `Amount to pay: Rs ${amount}`;
-  modal.style.display = "flex";
-}
-
+</body>
+</html>
