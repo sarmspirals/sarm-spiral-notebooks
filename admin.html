@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Admin – Orders</title>
+  <title>Admin – SARM</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -17,21 +17,41 @@
       border-radius:8px;
       box-shadow:0 2px 6px rgba(0,0,0,0.1);
     }
-    .order strong { display:block; margin-top:5px; }
-    select {
-      padding:6px;
-      margin-top:5px;
+    input, button, select {
+      padding:10px;
+      width:100%;
+      margin-top:10px;
     }
+    #loginBox {
+      max-width:320px;
+      margin:100px auto;
+      background:#fff;
+      padding:20px;
+      border-radius:8px;
+    }
+    .hidden { display:none; }
   </style>
 </head>
 <body>
 
-<h2>📦 SARM Orders Dashboard</h2>
+<!-- 🔐 LOGIN -->
+<div id="loginBox">
+  <h3>Admin Login</h3>
+  <input id="email" type="email" placeholder="Admin Email">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+</div>
 
-<div id="orders"></div>
+<!-- 📦 ADMIN PANEL -->
+<div id="adminPanel" class="hidden">
+  <h2>📦 SARM Orders Dashboard</h2>
+  <button onclick="logout()">Logout</button>
+  <div id="orders"></div>
+</div>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
@@ -43,62 +63,86 @@
   };
 
   firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
   const db = firebase.firestore();
 
+  const loginBox = document.getElementById("loginBox");
+  const adminPanel = document.getElementById("adminPanel");
   const ordersDiv = document.getElementById("orders");
 
-  // 📦 Load Orders
-  db.collection("orders")
-    .orderBy("createdAt", "desc")
-    .onSnapshot(snapshot => {
-      ordersDiv.innerHTML = "";
+  // 🔐 AUTH STATE
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      loginBox.style.display = "none";
+      adminPanel.classList.remove("hidden");
+      loadOrders();
+    } else {
+      loginBox.style.display = "block";
+      adminPanel.classList.add("hidden");
+    }
+  });
 
-      snapshot.forEach(doc => {
-        const o = doc.data();
-        const div = document.createElement("div");
-        div.className = "order";
+  function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-        div.innerHTML = `
-          <strong>Order ID:</strong> ${doc.id}
-          <strong>Name:</strong> ${o.customer.name}
-          <strong>Phone:</strong> ${o.customer.phone}
-          <strong>Address:</strong> ${o.customer.address}
-          <strong>Payment:</strong> ${o.paymentMethod || "UPI"}
-          <strong>Total:</strong> Rs ${o.total}
+    auth.signInWithEmailAndPassword(email, password)
+      .catch(err => alert(err.message));
+  }
 
-          <strong>Status:</strong>
-          <select onchange="updateStatus('${doc.id}', this.value)">
-            <option value="Pending" ${o.status === "Pending" ? "selected" : ""}>Pending</option>
-            <option value="Shipped" ${o.status === "Shipped" ? "selected" : ""}>Shipped</option>
-            <option value="Delivered" ${o.status === "Delivered" ? "selected" : ""}>Delivered</option>
-          </select>
-        `;
+  function logout() {
+    auth.signOut();
+  }
 
-        ordersDiv.appendChild(div);
+  // 📦 LOAD ORDERS
+  function loadOrders() {
+    db.collection("orders")
+      .orderBy("createdAt", "desc")
+      .onSnapshot(snapshot => {
+        ordersDiv.innerHTML = "";
+        snapshot.forEach(doc => {
+          const o = doc.data();
+          const div = document.createElement("div");
+          div.className = "order";
+
+          div.innerHTML = `
+            <strong>Order ID:</strong> ${doc.id}
+            <strong>Name:</strong> ${o.customer.name}
+            <strong>Phone:</strong> ${o.customer.phone}
+            <strong>Address:</strong> ${o.customer.address}
+            <strong>Payment:</strong> ${o.paymentMethod}
+            <strong>Total:</strong> Rs ${o.total}
+
+            <strong>Status:</strong>
+            <select onchange="updateStatus('${doc.id}', this.value)">
+              <option ${o.status==="Pending"?"selected":""}>Pending</option>
+              <option ${o.status==="Shipped"?"selected":""}>Shipped</option>
+              <option ${o.status==="Delivered"?"selected":""}>Delivered</option>
+            </select>
+          `;
+          ordersDiv.appendChild(div);
+        });
       });
-    });
+  }
 
-  // 🔄 UPDATE STATUS + WHATSAPP TO CUSTOMER
+  // 🔄 STATUS UPDATE + WHATSAPP
   function updateStatus(orderId, newStatus) {
     db.collection("orders").doc(orderId).get().then(doc => {
       const o = doc.data();
 
-      // Update status in Firestore
       db.collection("orders").doc(orderId).update({
         status: newStatus
       });
 
-      // WhatsApp message to customer
       const msg = `
 📦 Order Update – SARM Spiral Notebooks
 
 Hello ${o.customer.name},
-
-Your order status is now:
+Your order is now:
 ➡️ ${newStatus}
 
-Thank you for shopping with us 🙏
-– SARM Spiral Notebooks
+Thank you 🙏
       `;
 
       window.open(
