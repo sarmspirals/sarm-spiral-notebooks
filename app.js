@@ -331,7 +331,7 @@ ${cartItems.map(i => `• ${i.title} x ${i.qty} = Rs ${i.price * i.qty}`).join('
 setTimeout(() => {
     window.location.href = "success.html";
 }, 500);
-   catch (eror) {
+   {
     console.error("Checkout error:", err);
     alert("Checkout failed. Please try again.");
   }
@@ -449,6 +449,7 @@ document.addEventListener("DOMContentLoaded", () => {
 updateCartUI();
 saveCart();
 loadProductsFromFirebase();
+
 
 
 
