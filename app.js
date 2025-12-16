@@ -303,7 +303,6 @@ Payment: ${paymentMethod}`;
   window.showUpiQR(total);
 
   // ⛔ STOP further checkout execution
-  return;
 }
 
     // WhatsApp alert to admin
@@ -450,5 +449,6 @@ document.addEventListener("DOMContentLoaded", () => {
 updateCartUI();
 saveCart();
 loadProductsFromFirebase();
+
 
 
