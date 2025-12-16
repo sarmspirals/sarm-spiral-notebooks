@@ -291,7 +291,6 @@ Payment: ${paymentMethod}`;
   }
 });
 
-    }
 
     // Generate Invoice PDF
     if (typeof generateInvoice === "function") {
@@ -451,4 +450,5 @@ document.addEventListener("DOMContentLoaded", () => {
 updateCartUI();
 saveCart();
 loadProductsFromFirebase();
+
 
