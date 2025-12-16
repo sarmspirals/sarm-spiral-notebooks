@@ -220,3 +220,4 @@ checkoutBtn.onclick = async () => {
  *****************/
 updateCartUI();
 loadProductsFromFirebase();
+
