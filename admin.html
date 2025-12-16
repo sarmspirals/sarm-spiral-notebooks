@@ -18,6 +18,10 @@
       box-shadow:0 2px 6px rgba(0,0,0,0.1);
     }
     .order strong { display:block; margin-top:5px; }
+    select {
+      padding:6px;
+      margin-top:5px;
+    }
   </style>
 </head>
 <body>
@@ -31,6 +35,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
+  // 🔥 Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyB2bfLiik96iccPzM3v7dz-Tc-S_4R4pHc",
     authDomain: "sarm-spiral-notebooks.firebaseapp.com",
@@ -42,25 +47,66 @@
 
   const ordersDiv = document.getElementById("orders");
 
+  // 📦 Load Orders
   db.collection("orders")
     .orderBy("createdAt", "desc")
     .onSnapshot(snapshot => {
       ordersDiv.innerHTML = "";
+
       snapshot.forEach(doc => {
         const o = doc.data();
         const div = document.createElement("div");
         div.className = "order";
+
         div.innerHTML = `
           <strong>Order ID:</strong> ${doc.id}
           <strong>Name:</strong> ${o.customer.name}
           <strong>Phone:</strong> ${o.customer.phone}
           <strong>Address:</strong> ${o.customer.address}
           <strong>Payment:</strong> ${o.paymentMethod || "UPI"}
-          <strong>Totals:</strong> Rs ${o.total}
+          <strong>Total:</strong> Rs ${o.total}
+
+          <strong>Status:</strong>
+          <select onchange="updateStatus('${doc.id}', this.value)">
+            <option value="Pending" ${o.status === "Pending" ? "selected" : ""}>Pending</option>
+            <option value="Shipped" ${o.status === "Shipped" ? "selected" : ""}>Shipped</option>
+            <option value="Delivered" ${o.status === "Delivered" ? "selected" : ""}>Delivered</option>
+          </select>
         `;
+
         ordersDiv.appendChild(div);
       });
     });
+
+  // 🔄 UPDATE STATUS + WHATSAPP TO CUSTOMER
+  function updateStatus(orderId, newStatus) {
+    db.collection("orders").doc(orderId).get().then(doc => {
+      const o = doc.data();
+
+      // Update status in Firestore
+      db.collection("orders").doc(orderId).update({
+        status: newStatus
+      });
+
+      // WhatsApp message to customer
+      const msg = `
+📦 Order Update – SARM Spiral Notebooks
+
+Hello ${o.customer.name},
+
+Your order status is now:
+➡️ ${newStatus}
+
+Thank you for shopping with us 🙏
+– SARM Spiral Notebooks
+      `;
+
+      window.open(
+        `https://wa.me/91${o.customer.phone}?text=${encodeURIComponent(msg)}`,
+        "_blank"
+      );
+    });
+  }
 </script>
 
 </body>
