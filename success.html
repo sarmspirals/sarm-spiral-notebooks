@@ -1,28 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Order Successful | SARM Spiral Notebooks</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Successful - SARM SPIRAL NOTEBOOKS</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .success-container {
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 3rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 5rem;
+            color: #27ae60;
+            margin-bottom: 1.5rem;
+        }
+        
+        .success-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .whatsapp-btn {
+            background: #25D366;
+            color: white;
+        }
+        
+        .whatsapp-btn:hover {
+            background: #1da851;
+        }
+        
+        .order-details {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1><i class="fas fa-book"></i> SARM SPIRAL NOTEBOOKS</h1>
+                <p class="tagline">Order Confirmation</p>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="index.html#products"><i class="fas fa-box-open"></i> Products</a></li>
+                    <li><a href="admin.html"><i class="fas fa-user-cog"></i> Admin</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-<header class="site-header">
-  <h1>✅ Order Successful</h1>
-</header>
+    <!-- Success Content -->
+    <main>
+        <div class="container">
+            <div class="success-container">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Order Placed Successfully!</h2>
+                <p>Thank you for your order. We have received your booking and will process it shortly.</p>
+                
+                <div class="order-details">
+                    <h3><i class="fas fa-receipt"></i> Order Details</h3>
+                    <p id="order-id">Order ID: <strong>Loading...</strong></p>
+                    <p id="order-date">Date: <strong>Loading...</strong></p>
+                    <p id="order-total">Total Amount: <strong>Loading...</strong></p>
+                    <p id="order-status">Status: <strong>Pending</strong></p>
+                    <p><i class="fas fa-info-circle"></i> You will receive a confirmation call within 24 hours.</p>
+                </div>
+                
+                <div class="success-actions">
+                    <a href="index.html" class="btn-primary"><i class="fas fa-shopping-cart"></i> Continue Shopping</a>
+                    <button id="whatsapp-btn" class="btn-primary whatsapp-btn"><i class="fab fa-whatsapp"></i> Contact on WhatsApp</button>
+                    <button id="download-invoice" class="btn-primary"><i class="fas fa-download"></i> Download Invoice</button>
+                </div>
+                
+                <div class="delivery-info" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #eee;">
+                    <h4><i class="fas fa-truck"></i> Delivery Information</h4>
+                    <p>• Delivery within 3-5 business days</p>
+                    <p>• Cash on Delivery (COD) available</p>
+                    <p>• For any queries, call: <strong>7006927825</strong></p>
+                    <p>• Email: <strong>mir7amir@gmail.com</strong></p>
+                </div>
+            </div>
+        </div>
+    </main>
 
-<main class="container" style="text-align:center">
-  <h2>Thank you for your order!</h2>
-  <p>Your order has been placed successfully.</p>
-  <p>Please complete the UPI payment if not done already.</p>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-section">
+                <h3><i class="fas fa-store"></i> SARM SPIRAL NOTEBOOKS</h3>
+                <p>Quality notebooks for students, professionals, and creative minds.</p>
+                <p><i class="fas fa-map-marker-alt"></i> KAWOOSA KHALISA, NARBAL, BADGAM</p>
+                <p><i class="fas fa-phone"></i> 7006927825</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html#products">Products</a></li>
+                    <li><a href="admin.html">Admin Panel</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Need Help?</h3>
+                <p>Call: 7006927825</p>
+                <p>WhatsApp: 7006927825</p>
+                <p>Email: mir7amir@gmail.com</p>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2025 SARM SPIRAL NOTEBOOKS. All rights reserved.</p>
+        </div>
+    </footer>
 
-  <a href="index.html" class="btn-primary">Continue Shopping</a>
-</main>
-
-<footer class="site-footer">
-  © SARM Spiral Notebooks
-</footer>
-
+    <!-- JavaScript -->
+    <script>
+        // Get order ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId');
+        
+        // Display order ID
+        if (orderId) {
+            document.getElementById('order-id').innerHTML = `Order ID: <strong>${orderId}</strong>`;
+            document.getElementById('order-date').innerHTML = `Date: <strong>${new Date().toLocaleDateString()}</strong>`;
+            
+            // In a real app, you would fetch order details from Firebase
+            // For now, we'll simulate it
+            const total = localStorage.getItem('last_order_total') || '0';
+            document.getElementById('order-total').innerHTML = `Total Amount: <strong>₹${total}</strong>`;
+        }
+        
+        // WhatsApp button
+        document.getElementById('whatsapp-btn').addEventListener('click', () => {
+            const message = encodeURIComponent(
+                `Hello SARM SPIRAL NOTEBOOKS!\n\n` +
+                `I just placed an order (ID: ${orderId || 'N/A'}).\n` +
+                `Can you please provide an update on my order?`
+            );
+            window.open(`https://wa.me/917006927825?text=${message}`, '_blank');
+        });
+        
+        // Download invoice button
+        document.getElementById('download-invoice').addEventListener('click', () => {
+            alert('Invoice download would start here. In a real app, this would generate a PDF.');
+            // In a real app, call the generateInvoice function from app.js
+        });
+        
+        // Clear cart from localStorage
+        localStorage.removeItem('sarm_cart');
+    </script>
 </body>
-</html>
+                  </html>
