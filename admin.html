@@ -1,176 +1,193 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin – SARM</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background:#f5f5f5;
-      padding:20px;
-    }
-    h2 { text-align:center; }
-    .order {
-      background:#fff;
-      padding:15px;
-      margin-bottom:15px;
-      border-radius:8px;
-      box-shadow:0 2px 6px rgba(0,0,0,0.1);
-    }
-    input, button, select {
-      padding:10px;
-      width:100%;
-      margin-top:10px;
-    }
-    #loginBox {
-      max-width:320px;
-      margin:100px auto;
-      background:#fff;
-      padding:20px;
-      border-radius:8px;
-    }
-    .hidden { display:none; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - SARM SPIRAL NOTEBOOKS</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
+    <!-- Admin Header -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1><i class="fas fa-user-cog"></i> Admin Panel</h1>
+                <p class="tagline">SARM SPIRAL NOTEBOOKS Management</p>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Store</a></li>
+                    <li><a href="#orders">Orders</a></li>
+                    <li><a href="#products">Products</a></li>
+                    <li><a href="#inventory">Inventory</a></li>
+                    <li id="admin-auth-section">
+                        <button id="admin-logout" class="btn-auth"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-<!-- 🔐 LOGIN -->
-<div id="loginBox">
-  <h3>Admin Login</h3>
-  <input id="email" type="email" placeholder="Admin Email">
-  <input id="password" type="password" placeholder="Password">
-  <button onclick="login()">Login</button>
-</div>
+    <!-- Admin Login (Shown initially) -->
+    <section id="admin-login-section" class="admin-login">
+        <div class="container">
+            <div class="login-box">
+                <h2><i class="fas fa-lock"></i> Admin Login</h2>
+                <p>Access restricted to authorized personnel only.</p>
+                <form id="admin-login-form">
+                    <div class="form-group">
+                        <label for="admin-email">Email</label>
+                        <input type="email" id="admin-email" required placeholder="admin@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-password">Password</label>
+                        <input type="password" id="admin-password" required placeholder="Enter password">
+                    </div>
+                    <button type="submit" class="btn-primary">Login as Admin</button>
+                </form>
+                <p class="note"><i class="fas fa-info-circle"></i> Contact system administrator for credentials.</p>
+            </div>
+        </div>
+    </section>
 
-<!-- 📦 ADMIN PANEL -->
-<div id="adminPanel" class="hidden">
-  <h2>📦 SARM Orders Dashboard</h2>
-  <button onclick="logout()">Logout</button>
-  <div id="orders"></div>
-</div>
+    <!-- Admin Dashboard (Hidden initially) -->
+    <div id="admin-dashboard" style="display: none;">
+        <!-- Orders Management -->
+        <section id="orders" class="admin-section">
+            <div class="container">
+                <h2><i class="fas fa-clipboard-list"></i> Order Management</h2>
+                <div class="filter-orders">
+                    <select id="order-filter">
+                        <option value="all">All Orders</option>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <input type="date" id="order-date-filter">
+                    <button id="refresh-orders" class="btn-primary"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+                <div class="orders-table-container">
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Phone</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body">
+                            <!-- Orders will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+        <!-- Product Management -->
+        <section id="products" class="admin-section" style="background: #f8f9fa; padding: 3rem 0;">
+            <div class="container">
+                <h2><i class="fas fa-box-open"></i> Product Management</h2>
+                <button id="add-product-btn" class="btn-primary" style="margin-bottom: 1.5rem;">
+                    <i class="fas fa-plus"></i> Add New Product
+                </button>
+                <div class="product-grid" id="admin-product-container">
+                    <!-- Products will be loaded here -->
+                </div>
+            </div>
+        </section>
 
-<script>
-  // 🔥 Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyB2bfLiik96iccPzM3v7dz-Tc-S_4R4pHc",
-    authDomain: "sarm-spiral-notebooks.firebaseapp.com",
-    projectId: "sarm-spiral-notebooks",
-  };
+        <!-- Inventory Management -->
+        <section id="inventory" class="admin-section">
+            <div class="container">
+                <h2><i class="fas fa-chart-line"></i> Inventory & Reports</h2>
+                <div class="inventory-stats">
+                    <div class="stat-card">
+                        <h3>Total Products</h3>
+                        <p id="total-products">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Low Stock (< 10)</h3>
+                        <p id="low-stock-count">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Out of Stock</h3>
+                        <p id="out-of-stock-count">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Today's Orders</h3>
+                        <p id="today-orders">0</p>
+                    </div>
+                </div>
+                <div class="inventory-table-container">
+                    <h3>Stock Details</h3>
+                    <table class="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Current Stock</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Update Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table-body">
+                            <!-- Inventory will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
 
-  firebase.initializeApp(firebaseConfig);
+    <!-- Product Modal -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="product-modal-title"><i class="fas fa-box"></i> Add Product</h2>
+            <form id="product-form">
+                <input type="hidden" id="product-id">
+                <div class="form-group">
+                    <label for="product-name">Product Name *</label>
+                    <input type="text" id="product-name" required placeholder="Spiral Notebook 200 Pages">
+                </div>
+                <div class="form-group">
+                    <label for="product-pages">Number of Pages *</label>
+                    <input type="number" id="product-pages" required placeholder="200">
+                </div>
+                <div class="form-group">
+                    <label for="product-price">Price (₹) *</label>
+                    <input type="number" id="product-price" required placeholder="69">
+                </div>
+                <div class="form-group">
+                    <label for="product-stock">Stock Quantity *</label>
+                    <input type="number" id="product-stock" required placeholder="50">
+                </div>
+                <div class="form-group">
+                    <label for="product-image">Image URL</label>
+                    <input type="text" id="product-image" placeholder="200.jpg">
+                </div>
+                <div class="form-group">
+                    <label for="product-description">Description</label>
+                    <textarea id="product-description" rows="3" placeholder="Product description..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Save Product</button>
+                <button type="button" id="delete-product" class="btn-danger" style="display: none;">Delete Product</button>
+            </form>
+        </div>
+    </div>
 
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-
-  const loginBox = document.getElementById("loginBox");
-  const adminPanel = document.getElementById("adminPanel");
-  const ordersDiv = document.getElementById("orders");
-
-  // 🔐 AUTH STATE
- auth.onAuthStateChanged(user => {
-  if (user) {
-    if (!user.emailVerified) {
-      alert("Please verify your email to access admin panel.");
-      auth.signOut();
-      loginBox.style.display = "block";
-      adminPanel.classList.add("hidden");
-      return;
-    }
-
-    loginBox.style.display = "none";
-    adminPanel.classList.remove("hidden");
-    loadOrders();
-  } else {
-    loginBox.style.display = "block";
-    adminPanel.classList.add("hidden");
-  }
-});
-
-
-  function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then(({ user }) => {
-      if (!user.emailVerified) {
-        user.sendEmailVerification();
-        alert("Verification email sent. Please verify and login again.");
-        auth.signOut();
-      }
-    })
-    .catch(err => alert(err.message));
-}
-
-
-  function logout() {
-    auth.signOut();
-  }
-
-  // 📦 LOAD ORDERS
-  function loadOrders() {
-    db.collection("orders")
-      .orderBy("createdAt", "desc")
-      .onSnapshot(snapshot => {
-        ordersDiv.innerHTML = "";
-        snapshot.forEach(doc => {
-          const o = doc.data();
-          const div = document.createElement("div");
-          div.className = "order";
-
-          div.innerHTML = `
-            <strong>Order ID:</strong> ${doc.id}
-            <strong>Name:</strong> ${o.customer.name}
-            <strong>Phone:</strong> ${o.customer.phone}
-            <strong>Address:</strong> ${o.customer.address}
-            <strong>Payment:</strong> ${o.paymentMethod}
-            <strong>Total:</strong> Rs ${o.total}
-
-            <strong>Status:</strong>
-            <select onchange="updateStatus('${doc.id}', this.value)">
-              <option ${o.status==="Pending"?"selected":""}>Pending</option>
-              <option ${o.status==="Shipped"?"selected":""}>Shipped</option>
-              <option ${o.status==="Delivered"?"selected":""}>Delivered</option>
-            </select>
-          `;
-          ordersDiv.appendChild(div);
-        });
-      });
-  }
-
-  // 🔄 STATUS UPDATE + WHATSAPP
-  function updateStatus(orderId, newStatus) {
-    db.collection("orders").doc(orderId).get().then(doc => {
-      const o = doc.data();
-
-      db.collection("orders").doc(orderId).update({
-        status: newStatus
-      });
-
-      const msg = `
-📦 Order Update – SARM Spiral Notebooks
-
-Hello ${o.customer.name},
-Your order is now:
-➡️ ${newStatus}
-
-Thank you 🙏
-      `;
-
-      window.open(
-        `https://wa.me/91${o.customer.phone}?text=${encodeURIComponent(msg)}`,
-        "_blank"
-      );
-    });
-  }
-</script>
-
+    <!-- JavaScript -->
+    <script src="admin.js"></script>
 </body>
-</html>
-
-
+              </html>
