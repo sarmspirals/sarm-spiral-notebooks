@@ -28,25 +28,25 @@ let products = [];
 // ============================================
 const defaultProducts = [
     {
-        id: '200',
+        id: 'p200',
         name: 'Spiral Notebook 200 Pages',
         pages: 200,
         price: 69,
         image: '200.jpg',
-        stock: 50,
+        stock: 100,
         description: 'Standard 200-page spiral notebook'
     },
     {
-        id: '250',
+        id: 'p250',
         name: 'Spiral Notebook 250 Pages',
         pages: 250,
         price: 85,
         image: '250.jpg',
-        stock: 40,
+        stock: 100,
         description: '250-page notebook with durable cover'
     },
     {
-        id: '300',
+        id: 'p300',
         name: 'Spiral Notebook 300 Pages',
         pages: 300,
         price: 105,
@@ -55,7 +55,7 @@ const defaultProducts = [
         description: '300-page thick notebook for extensive use'
     },
     {
-        id: '350',
+        id: 'p350',
         name: 'Spiral Notebook 350 Pages',
         pages: 350,
         price: 115,
@@ -64,7 +64,7 @@ const defaultProducts = [
         description: '350-page premium notebook'
     },
     {
-        id: '400',
+        id: 'p400',
         name: 'Spiral Notebook 400 Pages',
         pages: 400,
         price: 130,
@@ -73,12 +73,12 @@ const defaultProducts = [
         description: '400-page heavy-duty notebook'
     },
     {
-        id: '500',
+        id: 'p500',
         name: 'Spiral Notebook 500 Pages',
         pages: 500,
         price: 155,
         image: '500.jpg',
-        stock: 20,
+        stock: 100,
         description: '500-page maximum capacity notebook'
     }
 ];
@@ -633,3 +633,4 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('SARM SPIRAL NOTEBOOKS website initialized');
 });
+
