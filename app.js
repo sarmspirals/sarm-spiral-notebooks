@@ -207,24 +207,34 @@ function initAuth() {
 // PRODUCT FUNCTIONS
 // ============================================
 function loadProducts() {
-    // Try to load from Firebase first
-    db.collection('products').get()
-        .then(snapshot => {
+    console.log("1. Starting to load products...");
+    console.log("2. Firebase db object exists?", db ? "YES" : "NO");
+
+    // Try to get products from Firestore
+    db.collection("products").get()
+        .then((snapshot) => {
+            console.log("3. Firestore query succeeded.");
+            console.log("4. Number of products found:", snapshot.size);
+
             if (!snapshot.empty) {
                 products = [];
-                snapshot.forEach(doc => {
+                snapshot.forEach((doc) => {
+                    console.log("5. Product Doc ID:", doc.id, "Data:", doc.data());
                     products.push({ id: doc.id, ...doc.data() });
                 });
+                console.log("6. Products array ready:", products);
                 renderProducts();
             } else {
-                // Use default products if Firebase is empty
+                console.log("7. Firestore 'products' collection is EMPTY.");
+                // Fallback to default products
                 products = defaultProducts;
                 renderProducts();
             }
         })
-        .catch(error => {
-            console.error('Error loading products:', error);
-            // Fallback to default products
+        .catch((error) => {
+            // THIS IS THE CRITICAL ERROR CATCHER
+            console.error("8. FIRESTORE ERROR CAUGHT:", error.code, "-", error.message);
+            console.log("9. Using default products as fallback.");
             products = defaultProducts;
             renderProducts();
         });
@@ -633,4 +643,5 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('SARM SPIRAL NOTEBOOKS website initialized');
 });
+
 
