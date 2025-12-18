@@ -1,201 +1,200 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SARM Spiral Notebooks — Shop</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
-  <script defer src="app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SARM SPIRAL NOTEBOOKS - Premium Quality Notebooks</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <!-- jsPDF for invoices -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
-
-<!-- UPI PAYMENT MODAL -->
-<div
-  id="upiModal"
-  style="
-    display:none;
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.7);
-    z-index:99999;
-    align-items:center;
-    justify-content:center;
-  "
->
-  <div
-    style="
-      background:#fff;
-      padding:20px;
-      border-radius:10px;
-      width:280px;
-      text-align:center;
-    "
-  >
-    <h3>Scan & Pay via UPI</h3>
-
-    <div
-      id="upiQR"
-      style="
-        width:200px;
-        height:200px;
-        margin:15px auto;
-       background:#fff;
-      "
-    ></div>
-
-    <p id="upiAmount" style="font-weight:600;"></p>
-
-    <button
-  id="upiPaidBtn"
-  type="button"
-  style="
-    margin-top:10px;
-    padding:10px 14px;
-    background:#16a34a;
-    color:white;
-    border:none;
-    border-radius:6px;
-    font-size:15px;
-    cursor:pointer;
-    width:100%;
-  "
->
-  I have paid
-</button>
-
-    <button
-      onclick="document.getElementById('upiModal').style.display='none'"
-      style="margin-top:10px; padding:8px 14px;"
-    >
-      Close
-    </button>
-  </div>
-</div>
-
-
-
 <body>
-  <header class="site-header">
-    <div class="brand">
-      <svg width="48" height="48" viewBox="0 0 100 100">
-        <defs>
-          <linearGradient id="lg" x1="0" x2="1">
-            <stop offset="0" stop-color="#1a73e8"/>
-            <stop offset="1" stop-color="#38bdf8"/>
-          </linearGradient>
-        </defs>
-        <rect rx="16" width="100" height="100" fill="url(#lg)"></rect>
-        <text x="50" y="60" font-size="56" fill="#fff" text-anchor="middle" font-family="Arial">S</text>
-      </svg>
-      <h1>SARM Spiral Notebooks</h1>
+    <!-- Header with Navigation -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1><i class="fas fa-book"></i> SARM SPIRAL NOTEBOOKS</h1>
+                <p class="tagline">Quality Notebooks for Quality Thoughts</p>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#products">Products</a></li>
+                    <li><a href="#cart"><i class="fas fa-shopping-cart"></i> Cart <span id="cart-count">0</span></a></li>
+                    <li id="auth-section">
+                        <button id="login-btn" class="btn-auth"><i class="fas fa-sign-in-alt"></i> Login</button>
+                        <button id="logout-btn" class="btn-auth" style="display:none;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    </li>
+                    <li><a href="admin.html" class="admin-link"><i class="fas fa-user-cog"></i> Admin</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2>Premium Spiral Notebooks</h2>
+                <p>200 to 500 pages | High-quality paper | Durable spiral binding</p>
+                <p class="address"><i class="fas fa-map-marker-alt"></i> KAWOOSA KHALISA, NARBAL, BADGAM | PIN: 193411</p>
+                <p class="contact"><i class="fas fa-phone"></i> 7006927825 | <i class="fab fa-whatsapp"></i> 7006927825</p>
+                <a href="#products" class="btn-primary">Shop Now</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="products">
+        <div class="container">
+            <h2><i class="fas fa-box-open"></i> Our Products</h2>
+            <div class="product-grid" id="product-container">
+                <!-- Products will be loaded by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Sidebar -->
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3><i class="fas fa-shopping-cart"></i> Your Cart</h3>
+            <button id="close-cart" class="close-btn">&times;</button>
+        </div>
+        <div class="cart-items" id="cart-items">
+            <!-- Cart items will be added here -->
+        </div>
+        <div class="cart-summary">
+            <p>Total: <span id="cart-total">₹0</span></p>
+            <button id="checkout-btn" class="btn-primary">Proceed to Checkout</button>
+        </div>
+    </div>
+    <div id="cart-overlay" class="cart-overlay"></div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2><i class="fas fa-receipt"></i> Checkout & Booking</h2>
+            <form id="checkout-form">
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" required placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number (10 digits) *</label>
+                    <input type="tel" id="phone" pattern="[0-9]{10}" required placeholder="10-digit phone number">
+                </div>
+                <div class="form-group">
+                    <label for="address">Full Address *</label>
+                    <textarea id="address" rows="3" required placeholder="House no, Street, Area"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="landmark">Landmark</label>
+                    <input type="text" id="landmark" placeholder="Near BSNL Tower, etc.">
+                </div>
+                <div class="form-group">
+                    <label for="pincode">Pincode *</label>
+                    <input type="text" id="pincode" pattern="[0-9]{6}" required placeholder="6-digit pincode">
+                </div>
+                <div class="form-group">
+                    <label>Payment Method *</label>
+                    <div class="payment-options">
+                        <label><input type="radio" name="payment" value="COD" checked> Cash on Delivery (COD)</label>
+                        <label><input type="radio" name="payment" value="UPI"> UPI Payment</label>
+                    </div>
+                </div>
+                <div id="upi-qr" style="display:none; text-align:center; margin:15px 0;">
+                    <p>Scan this QR code to pay via UPI</p>
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=UPI_ID_HERE" alt="UPI QR Code" style="width:150px; height:150px;">
+                    <p><small>UPI ID: mir7amir@okhdfcbank</small></p>
+                </div>
+                <div class="order-summary">
+                    <h4>Order Summary</h4>
+                    <div id="order-summary-items"></div>
+                    <p class="total">Total: <span id="order-total">₹0</span></p>
+                </div>
+                <button type="submit" class="btn-primary"><i class="fas fa-paper-plane"></i> Place Order</button>
+            </form>
+        </div>
     </div>
 
-    <div class="nav-actions">
-      <button id="darkToggle" class="pill">🌙</button>
-      <button id="cartBtn" class="pill">Cart (<span id="cartCount">0</span>)</button>
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2><i class="fas fa-lock"></i> User Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+                <p style="margin-top:15px; font-size:0.9em;">
+                    Don't have an account? <a href="#" id="show-register">Register here</a>
+                </p>
+            </form>
+            <form id="register-form" style="display:none;">
+                <div class="form-group">
+                    <label for="reg-email">Email</label>
+                    <input type="email" id="reg-email" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Password (min. 6 characters)</label>
+                    <input type="password" id="reg-password" minlength="6" required placeholder="Enter password">
+                </div>
+                <div class="form-group">
+                    <label for="reg-name">Full Name</label>
+                    <input type="text" id="reg-name" required placeholder="Your full name">
+                </div>
+                <button type="submit" class="btn-primary">Register</button>
+                <p style="margin-top:15px; font-size:0.9em;">
+                    Already have an account? <a href="#" id="show-login">Login here</a>
+                </p>
+            </form>
+        </div>
     </div>
-  </header>
 
-  <section class="hero">
-    <div class="hero-inner">
-      <h2>Premium Spiral Notebooks</h2>
-      <p>Durable, smooth pages — available in 200 / 250 / 300 / 400 / 500 pages.</p>
-    </div>
-  </section>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-section">
+                <h3><i class="fas fa-store"></i> SARM SPIRAL NOTEBOOKS</h3>
+                <p>Quality notebooks for students, professionals, and creative minds.</p>
+                <p><i class="fas fa-map-marker-alt"></i> KAWOOSA KHALISA, NARBAL, BADGAM</p>
+                <p><i class="fas fa-phone"></i> 7006927825</p>
+                <p><i class="fas fa-envelope"></i> mir7amir@gmail.com</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#products">Products</a></li>
+                    <li><a href="#cart">Cart</a></li>
+                    <li><a href="admin.html">Admin Panel</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Payment Methods</h3>
+                <p>Cash on Delivery (COD)</p>
+                <p>UPI Payments</p>
+                <p>Secure & Hassle-free</p>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2025 SARM SPIRAL NOTEBOOKS. All rights reserved.</p>
+        </div>
+    </footer>
 
-  <main class="container">
-    <h2>Products</h2>
-    <div id="productsGrid" class="products-grid"></div>
-  </main>
-
-  <!-- CART -->
-<aside id="cartPanel" class="cart-panel">
-  <button id="closeCart" class="close-x">✕</button>
-  <h3>Your Cart</h3>
-
-  <!-- REQUIRED -->
-  <div id="cartItems"></div>
-
-  <div class="cart-summary">
-    <strong>Total: <span id="cartTotal">Rs 0</span></strong>
-  </div>
-
-  <!-- PAYMENT METHOD -->
-  <div style="margin:12px 0;">
-    <label style="font-weight:600;">Payment Method</label><br>
-    <label><input type="radio" name="paymentMethod" value="COD" checked> Cash on Delivery</label><br>
-    <label><input type="radio" name="paymentMethod" value="UPI"> UPI</label>
-  </div>
-
-  <button id="checkoutBtn" class="btn-primary" style="width:100%;">
-    Checkout
-  </button>
-
-  <button id="upiBtn" style="width:100%;margin-top:10px;">
-    Pay via UPI
-  </button>
-</aside>
-
-<button id="checkoutBtn" class="btn-primary" style="width:100%; margin-top:10px;">
-  Checkout (UPI)
-</button>
-
-<button
-  id="upiBtn"
-  style="
-    width:100%;
-    margin-top:10px;
-    padding:12px;
-    background:#000;
-    color:#fff;
-    font-size:16px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-  "
->
-  Pay via UPI
-</button>
-
-  <!-- UPI QR MODAL -->
-  <div id="upiModal" class="modal">
-    <div class="modal-content">
-      <button id="closeUpi" class="close-x">✕</button>
-      <h3>Scan to Pay (UPI)</h3>
-      <div id="qrcode"></div>
-      <p id="upiText"></p>
-      <p class="muted">After payment, admin marks the order as PAID.</p>
-      <button id="finishBtn" class="btn-primary">Finish</button>
-    </div>
-  </div>
-
-  <footer class="site-footer">
-    <p><strong>Address:</strong> Kawoosa Khalisa, Badgam</p>
-    <p><strong>Phone:</strong> 7006927825</p>
-    <p><strong>Email:</strong> mir7amir@gmail.com</p>
-    <div>© <span id="year"></span> SARM Spiral Notebooks</div>
-  </footer>
+    <!-- JavaScript Files -->
+    <script src="app.js"></script>
 </body>
-</html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                                 </html>
