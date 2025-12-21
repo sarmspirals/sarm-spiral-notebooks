@@ -6,7 +6,7 @@ function calculateTotal() {
     const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
     
     cartItems.forEach(item => {
-        total += item.price * item.quantity;
+        total = item.price * item.quantity;
     });
     
     // Update total display
